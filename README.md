@@ -1,2 +1,6 @@
 "# SUTparttimeApp" 
-"# SUTparttimeApp" 
+"How to install"
+
+npm install
+
+
