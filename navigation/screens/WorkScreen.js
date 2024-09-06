@@ -1,14 +1,41 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+import Box from '../../component/Box';
+import HeaderBar from '../../component/HeaderBar'; // นำเข้า HeaderBar
 
-export default function DetailsScreen({ navigation }) {  // Corrected function name
+export default function WorkScreen({ navigation }) {
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text
-                onPress={() => navigation.navigation('Home')}  // Changed curly braces to parentheses
-                style={{ fontSize: 26, fontWeight: 'bold' }}> 
-                Work Screen
-            </Text>
+        <View style={styles.mainContainer}>
+            {/* เพิ่ม HeaderBar */}
+            <HeaderBar />
+            
+            {/* ส่วนเนื้อหาของหน้าจอ */}
+            <ScrollView contentContainerStyle={styles.container}>
+                <Image source={require('./img2/urWork.png')} style={styles.headerImage} />
+                <Text style={{ fontWeight: 'bold', fontSize: 20 }}>
+                    งานของคุณ
+                </Text>
+
+                {/* Box แสดงรายการงาน */}
+                <Box imgSource={require('./img2/pd.jpg')} textSource={"40/ชั่วโมง"} navigation={navigation} />
+                
+            </ScrollView>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+    },
+    container: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        paddingBottom: 20,
+    },
+    headerImage: {
+        width: '100%',
+        height: 230,
+    },
+});

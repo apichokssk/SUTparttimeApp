@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'sut';
+    src: url('./SUT\ Bold.ttf');
+    src: url('./SUT\ Light.ttf');
+    src: url('./SUT\ Regular.ttf');
+  }
+  * {
+    font-family: 'sut';
+  }
