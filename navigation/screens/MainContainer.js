@@ -10,6 +10,7 @@ import WorkScreen from './WorkScreen';
 import MessageScreen from './MessageScreen';
 import ProfileScreen from './ProfileScreen';
 import EditProFileScreen from './EditProFileScreen';
+import DetailScreen from './DetailScreen';
 
 // Screen names
 const homeName = 'Home';
@@ -30,6 +31,7 @@ function HomeStack() {
                 options={{ headerShown: false }} />
             <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
             <Stack.Screen name="EditProFileScreen" component={EditProFileScreen} />
+            <Stack.Screen name="DetailScreen" component={DetailScreen} />
         </Stack.Navigator>
     );
 }

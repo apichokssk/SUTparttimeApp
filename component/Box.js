@@ -4,7 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Box({ imgSource, textSource, navigation }) {
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('detailScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate('DetailScreen')}>
             <View style={styles.container}>
                 <View>
                     <Image source={imgSource} style={styles.image} />
