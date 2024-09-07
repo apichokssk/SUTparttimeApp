@@ -11,7 +11,7 @@ export default function MessageScreen({ navigation }) {
             {/* ส่วนเนื้อหาของหน้า */}
             <ScrollView contentContainerStyle={styles.container}>
                 <Image source={require('./img2/message.png')} style={styles.headerImage} />
-                <Text style={styles.text}>Your Messages</Text>
+                <Text style={styles.text}>ข้อความ</Text>
             </ScrollView>
         </View>
     );

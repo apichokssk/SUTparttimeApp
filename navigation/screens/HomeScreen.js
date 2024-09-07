@@ -14,7 +14,7 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.sliderContainer}>
                 <ImageSlider />
             </View>
-            <View style={{flex: 0.5, backgroundColor: 'yellow', borderWidth: 1}}> 
+            <View style={{flex: 1,}}> 
                 <BtnDay />
             </View>
             <View style={styles.boxContainer}>

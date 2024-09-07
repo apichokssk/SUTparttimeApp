@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const ProfileScreen = () => {
@@ -7,6 +7,29 @@ const ProfileScreen = () => {
 
   const goToEditProfile = () => {
     navigation.navigate('EditProFileScreen');  // นำทางไปยังหน้า EditProFileScreen
+  };
+
+  const handleLogout = () => {
+    // แสดง Alert ยืนยันการออกจากระบบ
+    Alert.alert(
+      'ยืนยันออกจากระบบ',  // หัวข้อ Alert
+      'คุณต้องการออกจากระบบใช่ไหม?',  // ข้อความใน Alert
+      [
+        {
+          text: 'ยกเลิก',
+          onPress: () => console.log('ยกเลิกการออกจากระบบ'),
+          style: 'cancel',  // สไตล์ปุ่มยกเลิก
+        },
+        {
+          text: 'ยืนยัน',
+          onPress: () => {
+            // เมื่อกดยืนยัน ให้นำทางไปหน้า Login
+            navigation.replace('Login');
+          },
+        },
+      ],
+      { cancelable: true }  // ทำให้ Alert ยกเลิกได้ด้วยการกดนอกกรอบ
+    );
   };
 
   return (
@@ -30,6 +53,11 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* ปุ่ม Logout */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>LogOut</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -92,6 +120,18 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  logoutButton: {
+    marginTop: 50,
+    backgroundColor: '#F44948',  // ใช้สีแดงตามภาพ
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 30,  // ทำให้ปุ่มมีลักษณะโค้งมนตามภาพ
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

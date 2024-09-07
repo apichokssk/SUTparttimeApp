@@ -1,8 +1,53 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';  // ใช้สำหรับแผนที่
 
 export default function DetailScreen() {
+    const [animationVisible, setAnimationVisible] = useState(false);  // สถานะสำหรับแสดงอนิเมชั่น
+    const [fadeAnim] = useState(new Animated.Value(0));  // สร้างค่า fade เริ่มต้น
+
+    // ฟังก์ชันเพื่อแสดง alert
+    const showAlert = () => {
+        Alert.alert(
+            "ยืนยันการสมัคร",  // หัวข้อ
+            "คุณจะยืนยันการสมัครใช่ไหม",  // ข้อความในกล่องแจ้งเตือน
+            [
+                {
+                    text: "ยกเลิก",
+                    onPress: () => console.log("การสมัครถูกยกเลิก"),
+                    style: "cancel"
+                },
+                {
+                    text: "ยืนยัน",
+                    onPress: () => {
+                        console.log("การสมัครสำเร็จ");
+                        startAnimation();  // เรียกใช้งานอนิเมชั่นเมื่อกด "ยืนยัน"
+                    }
+                }
+            ]
+        );
+    };
+
+    // ฟังก์ชันเพื่อเริ่มอนิเมชั่น
+    const startAnimation = () => {
+        setAnimationVisible(true);  // แสดงอนิเมชั่น
+        Animated.timing(fadeAnim, {
+            toValue: 1, // ทำให้มองเห็น
+            duration: 500, // ระยะเวลาในการแสดงอนิเมชั่น
+            useNativeDriver: true,
+        }).start(() => {
+            setTimeout(() => {
+                Animated.timing(fadeAnim, {
+                    toValue: 0, // ทำให้โปร่งใสหายไป
+                    duration: 500,
+                    useNativeDriver: true,
+                }).start(() => {
+                    setAnimationVisible(false);  // ซ่อนอนิเมชั่นหลังจาก 2 วินาที
+                });
+            }, 2000);  // แสดงผล 2 วินาทีแล้วจึงซ่อน
+        });
+    };
+
     return (
         <ScrollView style={styles.container}>
             {/* รูปภาพร้าน */}
@@ -15,11 +60,11 @@ export default function DetailScreen() {
             <View style={styles.detailContainer}>
                 <View style={styles.header}>
                     <Text style={styles.title}>ร้านอะเเดพแมน สาขา มทส.</Text>
-                    <TouchableOpacity style={styles.applyButton}>
+                    <TouchableOpacity style={styles.applyButton} onPress={showAlert}>
                         <Text style={styles.applyButtonText}>สมัคร</Text>
                     </TouchableOpacity>
                 </View>
-                
+
                 <View style={styles.infoContainer}>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>📦</Text>
@@ -72,6 +117,19 @@ export default function DetailScreen() {
                 <Text>สวัสดิการ: เข้างานไม่เกิน 22.00 คืนวันที่ 3 สิงหาคม</Text>
                 <Text>รายละเอียดบลาๆๆ</Text>
             </View>
+
+            {/* อนิเมชั่นยืนยัน */}
+            {animationVisible && (
+                <Animated.View style={[styles.successOverlay, { opacity: fadeAnim }]}>
+                <View style={styles.successContainer}>
+                    {/* แสดงรูปภาพ */}
+                    <Image source={require('./img2/accept.png')} style={styles.successImage} />
+                    {/* แสดงข้อความ */}
+                    <Text style={styles.successText}>การสมัครสำเร็จ!</Text>
+                </View>
+            </Animated.View>
+            
+            )}
         </ScrollView>
     );
 }
@@ -134,5 +192,29 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 300,
         marginVertical: 10,
+    },
+    successOverlay: {
+        position: 'absolute',
+        top: '30%',
+        left: '10%',
+        right: '10%',
+        backgroundColor: '#6ce600',
+        padding: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    successText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+        alignContent:'center'
+    },
+    successImage: {
+        height:25,
+        width:25
+    },
+    successContainer:{
+        flexDirection:'row'
     },
 });
