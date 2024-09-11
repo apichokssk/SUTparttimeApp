@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { doc, getDoc } from 'firebase/firestore';  // Import Firestore functions
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
 
-const ProfileScreen = () => {
+const ProfileScreenShop = () => {
   const navigation = useNavigation();  // ใช้ navigation เพื่อนำทาง
   const [profileData, setProfileData] = useState({});  // State to store profile data
   const [loading, setLoading] = useState(true);  // Loading state
@@ -34,7 +34,7 @@ const ProfileScreen = () => {
   }, []);
 
   const goToEditProfile = () => {
-    navigation.navigate('EditProFileScreen');  // Navigate to EditProFileScreen
+    navigation.navigate('EditProfileScreenShop');  // Correct the name to match the registered screen name
   };
 
   const handleLogout = () => {
@@ -181,4 +181,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default ProfileScreenShop;

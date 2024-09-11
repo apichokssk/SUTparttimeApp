@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } fro
 import { doc, getDoc, setDoc } from 'firebase/firestore';  // Firestore functions
 import { auth, db } from '../../firebase';  // Ensure correct path to firebase.js
 
-const EditProFileScreen = ({ navigation }) => {
+const EditProFileScreenShop = ({ navigation }) => {
   // State for the form
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -187,4 +187,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditProFileScreen;
+export default EditProFileScreenShop;

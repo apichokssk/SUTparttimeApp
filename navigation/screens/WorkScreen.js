@@ -11,7 +11,6 @@ export default function WorkScreen({ navigation }) {
             
             {/* ส่วนเนื้อหาของหน้าจอ */}
             <ScrollView contentContainerStyle={styles.container}>
-                <Image source={require('./img2/urWork.png')} style={styles.headerImage} />
                 <Text style={{ fontWeight: 'bold', fontSize: 20 }}>
                     งานของคุณ
                 </Text>

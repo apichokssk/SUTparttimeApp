@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import HeaderBar from '../../component/HeaderBar';  // นำเข้า HeaderBar
+import Box from '../../component/Box';
+import HeaderBar from '../../component/HeaderBar'; // นำเข้า HeaderBar
 
-export default function MessageScreen({ navigation }) {
+export default function WorkScreenShop({ navigation }) {
     return (
         <View style={styles.mainContainer}>
             {/* เพิ่ม HeaderBar */}
             <HeaderBar />
             
-            {/* ส่วนเนื้อหาของหน้า */}
+            {/* ส่วนเนื้อหาของหน้าจอ */}
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.text}>ข้อความ</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 20 ,marginTop: 20,}}>
+                    โพสต์ของคุณ
+                </Text>
+                
+                
             </ScrollView>
         </View>
     );
@@ -19,6 +24,7 @@ export default function MessageScreen({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
+        backgroundColor:'#fff',
     },
     container: {
         alignItems: 'center',
@@ -29,10 +35,5 @@ const styles = StyleSheet.create({
     headerImage: {
         width: '100%',
         height: 230,
-    },
-    text: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
     },
 });

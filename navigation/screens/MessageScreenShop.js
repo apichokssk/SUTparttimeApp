@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
 import HeaderBar from '../../component/HeaderBar';  // นำเข้า HeaderBar
 
-export default function MessageScreen({ navigation }) {
+export default function MessageScreenShop({ navigation }) {
     return (
         <View style={styles.mainContainer}>
             {/* เพิ่ม HeaderBar */}
@@ -19,6 +19,7 @@ export default function MessageScreen({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
+        backgroundColor:'#fff',
     },
     container: {
         alignItems: 'center',
@@ -34,5 +35,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 20,
+        
     },
 });

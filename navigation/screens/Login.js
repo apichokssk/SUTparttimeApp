@@ -1,61 +1,101 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../../firebase';  // Ensure correct path to firebase.js
+import { setDoc, doc, getDoc } from 'firebase/firestore';  // Firestore functions
 
 export default function LoginSignUp({ navigation }) {
-    const [isLogin, setIsLogin] = useState(true); // ใช้ state เพื่อสลับระหว่าง Login และ Sign Up
+    const [isLogin, setIsLogin] = useState(true);  // Toggle between Login and Sign Up
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [userType, setUserType] = useState('นักศึกษา');  // ใช้สำหรับเลือกประเภทผู้ใช้
+    const [userType, setUserType] = useState('นักศึกษา','ร้านค้า');  // User type selection
 
-    const handleLogin = () => {
-        console.log('Email:', email, 'Password:', password);
-        navigation.navigate('MainContainer');
+    // Handle user login
+    const handleLogin = async () => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('User logged in:', userCredential.user);
+            const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+            
+            if (userDoc.exists()) {
+                const userType = userDoc.data().userType;
+                if (userType === 'นักศึกษา') {
+                    Alert.alert('Success', 'Login successful!');
+                    navigation.navigate('MainContainer'); // Navigate to MainContainer for นักศึกษา
+                } else if (userType === 'ร้านค้า') {
+                    Alert.alert('Success', 'Login successful!');
+                    navigation.navigate('ShopMainContainer'); // Navigate to ShopMainContainer for ร้านค้า
+                } else {
+                    Alert.alert('Error', 'Unknown user type!');
+                }
+            } else {
+                console.log('No such document!');
+                Alert.alert('Error', 'No user data found!');
+            }
+        } catch (error) {
+            console.error('Login failed:', error.message);
+            Alert.alert('Error', `Login failed: ${error.message}`);
+        }
     };
 
-    const handleSignUp = () => {
-        console.log('Username:', username, 'Email:', email, 'Password:', password, 'Confirm Password:', confirmPassword, 'User Type:', userType);
+    // Handle user registration
+    const handleSignUp = async () => {
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match!');
+            return;
+        }
 
-        // แสดง Alert เมื่อลงทะเบียนสำเร็จ
-        Alert.alert(
-            'ลงทะเบียนสำเร็จ',
-            'คุณลงทะเบียนสำเร็จ!',
-            [
-                { text: 'ตกลง', onPress: () => setIsLogin(true) } // เมื่อกด 'ตกลง' กลับไปหน้า Login
-            ],
-            { cancelable: false }
-        );
+        try {
+            // Create a new user in Firebase Authentication
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Save additional user data to Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                username: username,
+                email: user.email,
+                userType: userType  // Save the selected user type (นักศึกษา/ร้านค้า)
+            });
+
+            Alert.alert('Success', 'Registration successful!', [
+                { text: 'OK', onPress: () => setIsLogin(true) }  // Go to login after registration
+            ]);
+        } catch (error) {
+            console.error('Registration failed:', error.message);
+            Alert.alert('Error', `Registration failed: ${error.message}`);
+        }
     };
 
     return (
         <View style={styles.container}>
-            {/* ส่วนโลโก้ด้านบน */}
+            {/* Logo */}
             <View style={styles.logoTopContainer}>
                 <Image source={require('./img2/SUT.png')} style={styles.logoTop} />
             </View>
 
-            {/* กล่องสำหรับฟอร์ม Login และ Sign Up */}
+            {/* Form container */}
             <View style={styles.formContainer}>
-                {/* ปุ่ม Login และ Sign Up */}
+                {/* Tabs to switch between Login and Sign Up */}
                 <View style={styles.tabContainer}>
                     <TouchableOpacity
                         style={[styles.tabButton, isLogin ? styles.activeTab : null]}
-                        onPress={() => setIsLogin(true)}
+                        onPress={() => setIsLogin(true)}  // Switch to Login form
                     >
                         <Text style={isLogin ? styles.tabText : styles.tabTextInactive}>Login</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.tabButton, !isLogin ? styles.activeTab : null]}
-                        onPress={() => setIsLogin(false)}
+                        onPress={() => setIsLogin(false)}  // Switch to Sign Up form
                     >
                         <Text style={!isLogin ? styles.tabText : styles.tabTextInactive}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* ฟอร์มสำหรับ Login */}
+                {/* Show Login Form if isLogin is true */}
                 {isLogin ? (
                     <>
                         <TextInput
@@ -88,7 +128,7 @@ export default function LoginSignUp({ navigation }) {
                     </>
                 ) : (
                     <>
-                        {/* ปุ่มเลือกประเภทผู้ใช้ */}
+                        {/* Show Sign Up Form if isLogin is false */}
                         <View style={styles.userTypeContainer}>
                             <TouchableOpacity
                                 style={[styles.userTypeButton, userType === 'นักศึกษา' ? styles.activeUserTypeButton : null]}
@@ -145,7 +185,7 @@ export default function LoginSignUp({ navigation }) {
                 )}
             </View>
 
-            {/* ภาพตกแต่งด้านล่าง */}
+            {/* Decorative Image */}
             <Image source={require('./img2/p.png')} style={styles.decorImage} />
         </View>
     );

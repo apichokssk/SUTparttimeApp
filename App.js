@@ -1,62 +1,95 @@
 import * as React from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as Font from 'expo-font'; // สำหรับการโหลดฟอนต์
-import * as SplashScreen from 'expo-splash-screen'; // สำหรับควบคุม Splash Screen
-import Login from './navigation/screens/Login';  // นำเข้าหน้า Login
-import MainContainer from './navigation/screens/MainContainer'; // นำเข้าหน้าหลัก
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import Login from './navigation/screens/Login';  // Login Screen
+import MainContainer from './navigation/screens/MainContainer'; // Main Container for Students
+import ShopMainContainer from './navigation/screens/ShopMainContainer'; // Main Container for Shops
+import PostScreen from './navigation/screens/PostScreen'; // PostScreen
+import DetailScreenShop from './navigation/screens/DetailScreenShop'; // Detail Screen for Shops
+import EditProfileScreenShop from './navigation/screens/EditProFileScreenShop'; // Edit Profile for Shops
+import ProfileScreenShop from './navigation/screens/ProfileScreenShop'; // Profile Screen for Shops
+import HomeScreenShop from './navigation/screens/HomeScreenShop'; // Make sure to import HomeScreenShop here
 
-// ป้องกันการซ่อน Splash Screen โดยอัตโนมัติเมื่อแอปโหลดเสร็จ
+// Prevent auto-hide of SplashScreen until loading is finished
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
 
+
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = React.useState(false);
 
-  // ฟังก์ชันสำหรับโหลดฟอนต์
+  // Function for loading fonts
   const loadFonts = async () => {
     await Font.loadAsync({
-      'SUT_Regular': require('./assets/font/SUT_Regular.ttf'), // เส้นทางไปยังฟอนต์ของคุณ
+      'SUT_Regular': require('./assets/font/SUT_Regular.ttf'),
     });
-    setFontsLoaded(true); // ฟอนต์โหลดเสร็จ
+    setFontsLoaded(true); 
   };
 
+  // Load fonts when app starts
   React.useEffect(() => {
-    async function prepare() {
-      try {
-        // โหลดฟอนต์
-        await loadFonts();
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        // ซ่อน Splash Screen เมื่อโหลดฟอนต์เสร็จ
-        if (fontsLoaded) {
-          await SplashScreen.hideAsync();
-        }
-      }
-    }
+    loadFonts();
+  }, []);
 
-    prepare(); // เรียกใช้เมื่อเริ่มแอป
+  // Hide SplashScreen once fonts are loaded
+  React.useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null; // ไม่แสดงอะไรเลยจนกว่าฟอนต์จะโหลดเสร็จ
+    return null;
   }
 
   return (
     <NavigationContainer>
       <StatusBar barStyle="dark-content" />
+      
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={Login}
+        <Stack.Screen 
+          name="Login" 
+          component={Login} 
           options={{ headerShown: false }} 
         />
-        <Stack.Screen
-          name="MainContainer"
-          component={MainContainer}
+        {/* HomeShopStack moved from HomeShopStack.js */}
+        <Stack.Screen 
+          name="HomeScreenShop" 
+          component={HomeScreenShop}  // This component was not imported before
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="ProfileScreenShop" 
+          component={ProfileScreenShop} 
+        />
+        <Stack.Screen 
+          name="EditProfileScreenShop" 
+          component={EditProfileScreenShop} 
+        />
+        <Stack.Screen 
+          name="DetailScreenShop" 
+          component={DetailScreenShop} 
+        />
+
+        {/* PostScreen Stack: Ensures no tab bar is shown on this screen */}
+        <Stack.Screen 
+          name="PostScreen" 
+          component={PostScreen} 
+          options={{ headerShown: true }} 
+        />
+        <Stack.Screen 
+          name="MainContainer" 
+          component={MainContainer} 
+          options={{ headerShown: false }} 
+        />
+
+        <Stack.Screen 
+          name="ShopMainContainer" 
+          component={ShopMainContainer} 
           options={{ headerShown: false }} 
         />
       </Stack.Navigator>
