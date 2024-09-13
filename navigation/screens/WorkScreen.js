@@ -11,7 +11,7 @@ export default function WorkScreen({ navigation }) {
             
             {/* ส่วนเนื้อหาของหน้าจอ */}
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={{ fontWeight: 'bold', fontSize: 20 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 20 ,marginTop: 20,}}>
                     งานของคุณ
                 </Text>
 
@@ -26,6 +26,7 @@ export default function WorkScreen({ navigation }) {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
+        backgroundColor:'#fff',
     },
     container: {
         alignItems: 'center',

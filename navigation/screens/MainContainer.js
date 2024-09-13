@@ -11,21 +11,12 @@ import MessageScreen from './MessageScreen';
 import ProfileScreen from './ProfileScreen';
 import EditProFileScreen from './EditProFileScreen';
 import DetailScreen from './DetailScreen';
-// Screen Shop
-import HomeScreenShop from './HomeScreenShop';
-import WorkScreenShop from './WorkScreenShop';
-import MessageScreenShop from './MessageScreenShop';
-import ProfileScreenShop from './ProfileScreenShop';
-import EditProFileScreenShop from './EditProFileScreenShop';
-import DetailScreenShop from './DetailScreenShop';
 
 // Screen names
 const homeName = 'Home';
 const workName = 'Work';
 const messageName = 'Message';
-const homeShopName = 'HomeShop';
-const workShopName = 'WorkShop';
-const messageShopName = 'MessageShop';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -41,20 +32,6 @@ function HomeStack() {
             <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
             <Stack.Screen name="EditProFileScreen" component={EditProFileScreen} />
             <Stack.Screen name="DetailScreen" component={DetailScreen} />
-        </Stack.Navigator>
-    );
-}
-function HomeShopStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="HomeScreenShop"
-                component={HomeScreenShop}
-                options={{ headerShown: false }}
-            />
-            <Stack.Screen name="ProfileScreenShop" component={ProfileScreenShop} />
-            <Stack.Screen name="EditProFileScreenShop" component={EditProFileScreenShop} />
-            <Stack.Screen name="DetailScreenShop" component={DetailScreenShop} />
         </Stack.Navigator>
     );
 }

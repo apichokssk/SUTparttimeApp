@@ -1,29 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { doc, getDoc, setDoc } from 'firebase/firestore';  // Firestore functions
-import { auth, db } from '../../firebase';  // Ensure correct path to firebase.js
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, storage } from '../../firebase';
+import * as ImagePicker from 'expo-image-picker';
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const EditProFileScreen = ({ navigation }) => {
-  // State for the form
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(true);  // Add a loading state
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false); // State for tracking image upload
 
-  const user = auth.currentUser;  // Get the current logged-in user
+  const user = auth.currentUser;
+
+  const pickImage = async () => {
+    // Request permission to access the image library
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need permission to access your photo library');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          // Get the user's document from Firestore
           const userDoc = await getDoc(doc(db, 'users', user.uid));
-
           if (userDoc.exists()) {
             const userData = userDoc.data();
             setFirstName(userData.firstName || '');
             setLastName(userData.lastName || '');
             setPhone(userData.phone || '');
+            setProfile(userData.profile || '');
           } else {
             console.log('No such document!');
           }
@@ -31,32 +54,57 @@ const EditProFileScreen = ({ navigation }) => {
           console.error('Error fetching user data:', error);
           Alert.alert('Error', 'Could not load profile data.');
         } finally {
-          setLoading(false);  // Set loading to false after fetching data
+          setLoading(false);
         }
       }
     };
 
-    fetchUserProfile();  // Fetch user data when the component mounts
+    fetchUserProfile();
   }, [user]);
 
-  const handleCancel = () => {
-    // Go back to the ProfileScreen when cancel is clicked
-    navigation.goBack();
+  const uploadImageToStorage = async (uri) => {
+    setUploading(true);
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+  
+      const storageRef = ref(storage, `profile/${user.uid}.jpg`);
+
+      await uploadBytes(storageRef, blob);
+  
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      Alert.alert('Error', 'Failed to upload image.');
+      return null;
+    } finally {
+      setUploading(false);
+    }
   };
 
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+  
   const handleSave = async () => {
     if (user) {
       try {
-        // Save the data to Firestore
+        let profileImageUrl = profile; // Keep old image if no new one is uploaded
+        if (image) {
+          profileImageUrl = await uploadImageToStorage(image);
+        }
+
         await setDoc(doc(db, 'users', user.uid), {
+          profile: profileImageUrl,
           firstName: firstName,
           lastName: lastName,
           phone: phone,
-          email: user.email  // You can store the email as well
-        }, { merge: true });  // Merge true so it doesn't overwrite the whole document
+          email: user.email,
+        }, { merge: true });
 
         Alert.alert('Success', 'Profile saved successfully!');
-        navigation.goBack();  // Navigate back after saving
+        navigation.goBack();
       } catch (error) {
         console.error('Error saving profile:', error);
         Alert.alert('Error', 'Failed to save profile.');
@@ -69,6 +117,7 @@ const EditProFileScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.container}>
+        <ActivityIndicator size="large" color="#ff5252" />
         <Text>Loading...</Text>
       </View>
     );
@@ -76,30 +125,32 @@ const EditProFileScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('./img2/tiw.png')}  // Replace with your profile image
-        style={styles.profileImage}
-      />
+      {/* Touchable image to pick new image */}
+      <TouchableOpacity onPress={pickImage}>
+        <Image source={{ uri: image || profile || 'https://example.com/placeholder.png' }} style={styles.image} />
+      </TouchableOpacity>
+
+      {uploading && <ActivityIndicator size="small" color="#ff5252" />}
 
       {/* Form for editing profile */}
       <View style={styles.form}>
-        <Text style={styles.label}>FirstName:</Text>
+        <Text style={styles.label}>First Name:</Text>
         <TextInput
           style={styles.input}
-          placeholder="FirstName"
+          placeholder="First Name"
           value={firstName}
           onChangeText={setFirstName}
         />
 
-        <Text style={styles.label}>LastName:</Text>
+        <Text style={styles.label}>Last Name:</Text>
         <TextInput
           style={styles.input}
-          placeholder="LastName"
+          placeholder="Last Name"
           value={lastName}
           onChangeText={setLastName}
         />
 
-        <Text style={styles.label}>tel:</Text>
+        <Text style={styles.label}>Phone:</Text>
         <TextInput
           style={styles.input}
           placeholder="0XX-XXX-XXXX"
@@ -114,7 +165,7 @@ const EditProFileScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
           <Text style={styles.cancelButtonText}>ยกเลิก</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={uploading}>
           <Text style={styles.saveButtonText}>บันทึก</Text>
         </TouchableOpacity>
       </View>
@@ -130,15 +181,10 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  profileID: {
-    fontSize: 16,
-    color: '#ff5252',
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     marginBottom: 20,
   },
   form: {

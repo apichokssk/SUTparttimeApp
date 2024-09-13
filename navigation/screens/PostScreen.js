@@ -1,15 +1,46 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Date Picker for selecting dates
 import { Ionicons } from '@expo/vector-icons';
-
+import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location'; // Import Location for user's current location
 
 const PostScreen = () => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [time, setTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
-  
+  const [markerCoordinate, setMarkerCoordinate] = useState(null); // Store the selected marker coordinate
+  const [locationAddress, setLocationAddress] = useState(''); // Store location address if needed
+  const [initialRegion, setInitialRegion] = useState(null); // User's current location
+
+  // Request permission to access location and set user's location as initial region
+  useEffect(() => {
+    const getUserLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Permission to access location was denied.');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setInitialRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+    };
+
+    getUserLocation(); // Fetch user's location when the component mounts
+  }, []);
+
+  // Handle taps on the map to drop a marker
+  const handleMapPress = (event) => {
+    const { coordinate } = event.nativeEvent;
+    setMarkerCoordinate(coordinate); // Set marker to the tapped location
+  };
+
   // Functions to handle date and time pickers
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -23,12 +54,32 @@ const PostScreen = () => {
     setTime(currentTime);
   };
 
+  if (!initialRegion) {
+    return null; // Optionally, return a loading spinner while location is being fetched
+  }
+
   return (
     <ScrollView style={styles.container}>
+      {/* Map with selectable location */}
+      <MapView
+        style={styles.map}
+        onPress={handleMapPress}
+        initialRegion={initialRegion}  // Use the user's current location as the initial region
+      >
+        {/* Show the marker if a location is selected */}
+        {markerCoordinate && (
+          <Marker
+            coordinate={markerCoordinate}
+            title="Selected Location"
+            description="You clicked here!"
+          />
+        )}
+      </MapView>
+
       {/* Upload Resume */}
       <TouchableOpacity style={styles.uploadResume}>
         <Ionicons name="cloud-upload-outline" size={30} color="gray" />
-        <Text style={styles.uploadText}>Upload Resume</Text>
+        <Text style={styles.uploadText}>Upload Profile Shop</Text>
       </TouchableOpacity>
 
       {/* Job Title Input */}
@@ -87,9 +138,7 @@ const PostScreen = () => {
       </View>
 
       {/* Location */}
-      <TextInput style={styles.input} placeholder="ที่ตั้ง" />
-      {/* Google Map (Placeholder Image) */}
-      <Image source={{ uri: 'https://via.placeholder.com/300' }} style={styles.map} />
+      <TextInput style={styles.input} placeholder="ที่ตั้ง" value={locationAddress} />
 
       {/* Extra Details */}
       <TextInput style={styles.input} placeholder="ข้อมูลเพิ่มเติม" />
@@ -105,9 +154,6 @@ const PostScreen = () => {
         <TouchableOpacity style={styles.postButton}>
           <Text style={styles.buttonText}>โพสต์งาน</Text>
         </TouchableOpacity>
-      </View>
-      <View style={{flex:1,backgroundColor:'yellow'}}>
-
       </View>
     </ScrollView>
   );
@@ -186,7 +232,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: 150,
+    height: 250,  // Increased map height for better visibility
     borderRadius: 10,
     marginBottom: 20,
   },

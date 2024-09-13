@@ -3,34 +3,32 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-na
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { doc, getDoc } from 'firebase/firestore';  // Import Firestore functions
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
-
+import {onSnapshot } from 'firebase/firestore'; 
 const ProfileScreenShop = () => {
   const navigation = useNavigation();  // ใช้ navigation เพื่อนำทาง
   const [profileData, setProfileData] = useState({});  // State to store profile data
   const [loading, setLoading] = useState(true);  // Loading state
 
   useEffect(() => {
-    const fetchProfileData = async () => {
-      const user = auth.currentUser;
+    const user = auth.currentUser;
 
-      if (user) {
-        try {
-          // Fetch the user's profile data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            setProfileData(userDoc.data());  // Set the fetched data in state
-          } else {
-            console.log('No such document!');
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        } finally {
-          setLoading(false);  // Set loading to false once data is fetched
+    if (user) {
+      // Use onSnapshot to listen to real-time updates from Firestore
+      const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setProfileData(docSnapshot.data());  // Update the state when the profile data changes
+        } else {
+          console.log('No such document!');
         }
-      }
-    };
+        setLoading(false);  // Set loading to false once data is fetched
+      }, (error) => {
+        console.error('Error fetching user data:', error);
+        setLoading(false);
+      });
 
-    fetchProfileData();  // Fetch data when component mounts
+      // Cleanup the listener on unmount to avoid memory leaks
+      return () => unsubscribe();
+    }
   }, []);
 
   const goToEditProfile = () => {
@@ -73,10 +71,9 @@ const ProfileScreenShop = () => {
       <View style={styles.profileCard}>
         {/* Profile Image */}
         <Image
-          source={require('./img2/tiw.png')}  // Use your profile image
+          source={{ uri: profileData.profile || 'https://example.com/placeholder.png' }}  // Use profile image or placeholder
           style={styles.profileImage}
         />
-
         {/* Profile Details */}
         <View style={styles.profileDetails}>
           <Text style={styles.userName}>Username: {profileData.username|| 'N/A'}</Text>

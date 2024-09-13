@@ -19,11 +19,11 @@ function HomeShopStack() {
             <Stack.Screen name="ProfileScreenShop" component={ProfileScreenShop} />
             <Stack.Screen name="EditProfileScreenShop" component={EditProfileScreenShop} />
             <Stack.Screen name="DetailScreenShop" component={DetailScreenShop} />
-            <Stack.Screen
-            name="PostScreen"
-            component={PostScreen}
-            options={{ headerShown: true, tabBarVisible: false }}  // Hide tab bar for PostScreen
-          />
+            <Stack.Screen 
+          name="PostScreen" 
+          component={PostScreen} 
+          options={{ headerShown: true }} 
+        />
         </Stack.Navigator>
     );
 }
