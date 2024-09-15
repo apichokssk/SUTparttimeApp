@@ -1,14 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native'; // ใช้ useNavigation เพื่อเข้าถึง navigation
+import { useNavigation } from '@react-navigation/native';
+import { auth, db } from '../firebase';  // Make sure to import Firebase setup
+import { doc, onSnapshot } from 'firebase/firestore';  // Import onSnapshot for real-time updates
 
 const HeaderBarShop = () => {
-  const navigation = useNavigation(); // ใช้ useNavigation เพื่อให้เข้าถึง navigation ในทุกหน้าจอที่ใช้ HeaderBar
+  const navigation = useNavigation();
+  const [profileData, setProfileData] = useState({ profile: '' });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+
+    if (user) {
+      // Use onSnapshot for real-time updates
+      const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+        if (doc.exists()) {
+          setProfileData(doc.data());
+        } else {
+          console.log('No such document!');
+        }
+        setLoading(false); // Stop loading once profile is fetched
+      }, (error) => {
+        console.error('Error fetching user data:', error);
+        setLoading(false);
+      });
+
+      // Cleanup the listener on unmount
+      return () => unsubscribe();
+    }
+  }, []);
 
   const goToProfile = () => {
-    navigation.navigate('ProfileScreenShop'); // นำทางไปยัง ProfileScreen
+    navigation.navigate('ProfileScreenShop');
   };
+
+  if (loading) {
+    return null; // Optionally render a loading spinner here
+  }
 
   return (
     <View style={styles.container}>
@@ -33,7 +63,7 @@ const HeaderBarShop = () => {
       <View style={{ flex: 0.25 }}>
         <TouchableOpacity onPress={goToProfile}>
           <Image
-            source={require('./img/tiw.png')}
+            source={{ uri: profileData.profile || 'https://example.com/placeholder.png' }}  // Profile image or placeholder
             style={{ width: 60, height: 60, borderRadius: 100 }}
           />
         </TouchableOpacity>
