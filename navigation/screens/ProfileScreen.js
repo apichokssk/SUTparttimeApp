@@ -85,7 +85,7 @@ const ProfileScreen = () => {
 
           {/* Edit Button */}
           <TouchableOpacity style={styles.editButton} onPress={goToEditProfile}>
-            <Text style={styles.editButtonText}>แก้ไข</Text>
+            <Text style={styles.editButtonText}>แก้ไขโปรไฟล์</Text>
           </TouchableOpacity>
         </View>
       </View>

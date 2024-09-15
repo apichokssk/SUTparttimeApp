@@ -1,134 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';  // ใช้สำหรับแผนที่
+import MapView, { Marker } from 'react-native-maps';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';  // Adjust your Firebase path
+import { useNavigation } from '@react-navigation/native';  // Import navigation
 
-export default function DetailScreenShop() {
-    const [animationVisible, setAnimationVisible] = useState(false);  // สถานะสำหรับแสดงอนิเมชั่น
-    const [fadeAnim] = useState(new Animated.Value(0));  // สร้างค่า fade เริ่มต้น
+export default function DetailScreenShop({ route }) {
+    const { post } = route.params;  // Get the passed post data
+    const [animationVisible, setAnimationVisible] = useState(false);
+    const [fadeAnim] = useState(new Animated.Value(0)); 
+    const [shopName, setShopName] = useState('');  // State for storing the shop name
+    const navigation = useNavigation();  // Get navigation object
 
-    // ฟังก์ชันเพื่อแสดง alert
-    const showAlert = () => {
-        Alert.alert(
-            "ยืนยันการสมัคร",  // หัวข้อ
-            "คุณจะยืนยันการสมัครใช่ไหม",  // ข้อความในกล่องแจ้งเตือน
-            [
-                {
-                    text: "ยกเลิก",
-                    onPress: () => console.log("การสมัครถูกยกเลิก"),
-                    style: "cancel"
-                },
-                {
-                    text: "ยืนยัน",
-                    onPress: () => {
-                        console.log("การสมัครสำเร็จ");
-                        startAnimation();  // เรียกใช้งานอนิเมชั่นเมื่อกด "ยืนยัน"
-                    }
+    // Fetch the shop name from Firestore
+    useEffect(() => {
+        const fetchShopName = async () => {
+            try {
+                const userRef = doc(db, 'users', post.userId);  // Reference to the user document
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    setShopName(userDoc.data().nameshop || 'Unknown Shop');
+                } else {
+                    console.log('No such user document!');
                 }
-            ]
-        );
-    };
+            } catch (error) {
+                console.error('Error fetching shop name:', error);
+            }
+        };
 
-    // ฟังก์ชันเพื่อเริ่มอนิเมชั่น
-    const startAnimation = () => {
-        setAnimationVisible(true);  // แสดงอนิเมชั่น
-        Animated.timing(fadeAnim, {
-            toValue: 1, // ทำให้มองเห็น
-            duration: 500, // ระยะเวลาในการแสดงอนิเมชั่น
-            useNativeDriver: true,
-        }).start(() => {
-            setTimeout(() => {
-                Animated.timing(fadeAnim, {
-                    toValue: 0, // ทำให้โปร่งใสหายไป
-                    duration: 500,
-                    useNativeDriver: true,
-                }).start(() => {
-                    setAnimationVisible(false);  // ซ่อนอนิเมชั่นหลังจาก 2 วินาที
-                });
-            }, 2000);  // แสดงผล 2 วินาทีแล้วจึงซ่อน
-        });
+        fetchShopName();
+    }, [post.userId]);
+
+    const navigateToEditScreen = () => {
+        // Navigate to the EditPostScreen, passing the post data
+        navigation.navigate('EditPostScreen', { post });
     };
 
     return (
         <ScrollView style={styles.container}>
-            {/* รูปภาพร้าน */}
+            {/* Shop Image */}
             <Image
-                source={require('./img2/pd.jpg')}  // แทนที่ด้วยรูปภาพร้านของคุณ
+                source={{ uri: post.profileShop }}  // Display the shop's image from the post
                 style={styles.shopImage}
             />
             
-            {/* รายละเอียดร้าน */}
+            {/* Shop Details */}
             <View style={styles.detailContainer}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>ร้านอะเเดพแมน สาขา มทส.</Text>
-                    <TouchableOpacity style={styles.applyButton} onPress={showAlert}>
-                        <Text style={styles.applyButtonText}>สมัคร</Text>
+                    {/* Display nameshop instead of position */}
+                    <Text style={styles.title}>{shopName} {post.gate}</Text>
+                    <TouchableOpacity style={styles.editButton} onPress={navigateToEditScreen}>
+                        <Text style={styles.editButtonText}>Edit</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.infoContainer}>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>📦</Text>
-                        <Text>พนักงานคลังสินค้า</Text>
+                        <Text>{post.position}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💵</Text>
-                        <Text>รายได้: ...... / ชั่วโมง</Text>
+                        <Text>Rate: {post.perhrs} / hour</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💼</Text>
-                        <Text>รายได้รวม: ......</Text>
+                        <Text>Total Income: {post.sum}</Text>
                     </View>
                 </View>
             </View>
 
-            {/* รายละเอียดอื่น ๆ */}
+            {/* Work Details */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>รายละเอียด</Text>
+                <Text style={styles.sectionTitle}>Details</Text>
                 <View style={styles.infoRow}>
-                    <Text>วัน</Text>
+                    <Text>Days: {post.person}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>เวลา</Text>
+                    <Text>Time: {post.time}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>ขอบเขตการทำงาน</Text>
+                    <Text>Scope of Work: {post.textdetail}</Text>
                 </View>
             </View>
 
-            {/* แผนที่ */}
+            {/* Map */}
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: 14.8802,  // ค่า latitude, longitude ของตำแหน่งที่ต้องการ
-                    longitude: 102.0154,
+                    latitude: post.latitude,
+                    longitude: post.longitude,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
             >
                 <Marker
-                    coordinate={{ latitude: 14.8802, longitude: 102.0154 }}  // ตำแหน่งแผนที่
-                    title="ร้านอะเเดพแมน สาขา มทส."
+                    coordinate={{ latitude: post.latitude, longitude: post.longitude }}
+                    title={post.position}
                 />
             </MapView>
 
-            {/* ข้อมูลเพิ่มเติม */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>ข้อมูลเพิ่มเติม</Text>
-                <Text>สวัสดิการ: เข้างานไม่เกิน 22.00 คืนวันที่ 3 สิงหาคม</Text>
-                <Text>รายละเอียดบลาๆๆ</Text>
-            </View>
-
-            {/* อนิเมชั่นยืนยัน */}
+            {/* Success Animation */}
             {animationVisible && (
                 <Animated.View style={[styles.successOverlay, { opacity: fadeAnim }]}>
-                <View style={styles.successContainer}>
-                    {/* แสดงรูปภาพ */}
-                    <Image source={require('./img2/accept.png')} style={styles.successImage} />
-                    {/* แสดงข้อความ */}
-                    <Text style={styles.successText}>การสมัครสำเร็จ!</Text>
-                </View>
-            </Animated.View>
-            
+                    <View style={styles.successContainer}>
+                        <Image source={require('./img2/accept.png')} style={styles.successImage} />
+                        <Text style={styles.successText}>Successfully Applied!</Text>
+                    </View>
+                </Animated.View>
             )}
         </ScrollView>
     );
@@ -159,13 +139,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
-    applyButton: {
+    editButton: {
         backgroundColor: '#FFC0CB',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
     },
-    applyButtonText: {
+    editButtonText: {
         color: '#fff',
         fontWeight: 'bold',
     },
@@ -208,13 +188,13 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 18,
         fontWeight: 'bold',
-        alignContent:'center'
+        alignContent: 'center',
     },
     successImage: {
-        height:25,
-        width:25
+        height: 25,
+        width: 25,
     },
-    successContainer:{
-        flexDirection:'row'
+    successContainer: {
+        flexDirection: 'row',
     },
 });

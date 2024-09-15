@@ -5,34 +5,39 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import { storage, db, auth } from '../../firebase'; // Adjust for your firebase setup
+import { storage, db } from '../../firebase'; // Adjust for your firebase setup
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { addDoc, collection } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import * as LocationReverseGeocode from 'expo-location';
-const PostScreen = ({ navigation }) => {
-  const [date, setDate] = useState(new Date());
+
+const EditPostScreen = ({ route, navigation }) => {
+  const { post } = route.params; // Existing post data passed via navigation
+  
+  const [date, setDate] = useState(new Date(post.starttime));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [time, setTime] = useState(new Date());
+  const [time, setTime] = useState(new Date(`${new Date().toDateString()} ${post.time}`)); // Adjust time parsing
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [markerCoordinate, setMarkerCoordinate] = useState(null);
-  const [locationAddress, setLocationAddress] = useState('');
+  const [markerCoordinate, setMarkerCoordinate] = useState({
+    latitude: post.latitude,
+    longitude: post.longitude,
+  });
+  const [locationAddress, setLocationAddress] = useState(post.gate);
   const [initialRegion, setInitialRegion] = useState(null);
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState(post.profileShop);
   const [uploading, setUploading] = useState(false);
 
   // Input states for Firebase Firestore fields
-  const [position, setPosition] = useState('');
-  const [perhrs, setPerHrs] = useState('');
-  const [person, setPerson] = useState('');
-  const [sum, setSum] = useState('');
-  const [textDetail, setTextDetail] = useState('');
-  const [profileShop, setProfileShop] = useState('');
-  const [gate, setGate] = useState('');
+  const [position, setPosition] = useState(post.position);
+  const [perhrs, setPerHrs] = useState(post.perhrs.toString());
+  const [person, setPerson] = useState(post.person.toString());
+  const [sum, setSum] = useState(post.sum.toString());
+  const [textDetail, setTextDetail] = useState(post.textdetail);
+  const [profileShop, setProfileShop] = useState(post.profileShop);
+  const [gate, setGate] = useState(post.gate);
 
   const GATE_1_COORDINATE = { latitude: 14.901235, longitude: 102.009467 };
   const GATE_4_COORDINATE = { latitude: 14.884229, longitude: 102.024803 };
 
-  // Get user location
   useEffect(() => {
     const getUserLocation = async () => {
       try {
@@ -98,19 +103,20 @@ const PostScreen = ({ navigation }) => {
   };
 
   // Handle Map Press
- const handleMapPress = async (event) => {
+  const handleMapPress = async (event) => {
     const { coordinate } = event.nativeEvent;
     if (coordinate) {
-        setMarkerCoordinate(coordinate);
+      setMarkerCoordinate(coordinate);
 
-        try {
-            let [address] = await LocationReverseGeocode.reverseGeocodeAsync(coordinate);
-            setLocationAddress(`${address.street}, ${address.city}, ${address.region}`);
-        } catch (error) {
-            Alert.alert('Error', 'Failed to fetch address.');
-        }
+      try {
+        let [address] = await LocationReverseGeocode.reverseGeocodeAsync(coordinate);
+        setLocationAddress(`${address.street}, ${address.city}, ${address.region}`);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch address.');
+      }
     }
-};
+  };
+
   // Select Gate
   const selectGate = (gateCoordinate, gateName) => {
     setMarkerCoordinate(gateCoordinate);
@@ -124,16 +130,11 @@ const PostScreen = ({ navigation }) => {
   };
 
   // Save Post to Firebase Firestore
-  const savePost = async () => {
+  const updatePost = async () => {
     try {
-      const user = auth.currentUser; // Get the current logged-in user
-  
-      if (!user) {
-        Alert.alert('Error', 'No user logged in.');
-        return;
-      }
-  
-      const newPost = {
+      const postRef = doc(db, 'blog', post.id); // Reference to the existing post document
+
+      const updatedPost = {
         position,
         perhrs: parseInt(perhrs),
         person: parseInt(person),
@@ -145,18 +146,16 @@ const PostScreen = ({ navigation }) => {
         longitude: markerCoordinate?.longitude || '',
         starttime: date.toLocaleDateString(),
         time: time.toLocaleTimeString(),
-        userId: user.uid, // Store user ID
-        userEmail: user.email, // Store user email
       };
-  
-      await addDoc(collection(db, 'blog'), newPost); // Add to 'blog' collection in Firestore
-  
-      Alert.alert('Success', 'Post saved successfully!');
-  
-      // Navigate to WorkScreenShop within ShopMainContainer
-      navigation.navigate('ShopMainContainer', { screen: 'WorkShop' });
+
+      await updateDoc(postRef, updatedPost); // Update the post document
+
+      Alert.alert('Success', 'Post updated successfully!');
+
+      // Navigate back and refresh the previous screen
+      navigation.goBack(); // Use goBack to return to the previous screen
     } catch (error) {
-      Alert.alert('Error', 'Failed to save post.');
+      Alert.alert('Error', 'Failed to update post.');
       console.error(error);
     }
   };
@@ -174,7 +173,10 @@ const PostScreen = ({ navigation }) => {
     <ScrollView style={styles.container}>
       <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.profileImage} />
+          <Image
+            source={{ uri: (imageUri && typeof imageUri === 'string') ? imageUri : 'https://example.com/placeholder.png' }}
+            style={styles.profileImage}
+          />
         ) : (
           <View style={styles.uploadPlaceholder}>
             <Ionicons name="cloud-upload-outline" size={40} color="gray" />
@@ -229,8 +231,8 @@ const PostScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.cancelButton} onPress={() => Alert.alert('Cancelled')}>
           <Text style={styles.buttonText}>ยกเลิก</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.postButton} onPress={savePost}>
-          <Text style={styles.buttonText}>โพสต์งาน</Text>
+        <TouchableOpacity style={styles.postButton} onPress={updatePost}>
+          <Text style={styles.buttonText}>แก้ไข</Text>
         </TouchableOpacity>
       </View>
       <View style={{ width: '100%', height: 60 }} />
@@ -347,4 +349,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PostScreen;
+export default EditPostScreen;

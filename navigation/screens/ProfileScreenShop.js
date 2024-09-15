@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { doc, getDoc } from 'firebase/firestore';  // Import Firestore functions
+import { doc, getDoc, updateDoc } from 'firebase/firestore';  // Import Firestore functions
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
-import {onSnapshot } from 'firebase/firestore'; 
+import { onSnapshot } from 'firebase/firestore'; 
+
 const ProfileScreenShop = () => {
   const navigation = useNavigation();  // ใช้ navigation เพื่อนำทาง
   const [profileData, setProfileData] = useState({});  // State to store profile data
   const [loading, setLoading] = useState(true);  // Loading state
+  const [shopName, setShopName] = useState('');  // State for shop name input
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -17,6 +19,7 @@ const ProfileScreenShop = () => {
       const unsubscribe = onSnapshot(doc(db, 'users', user.uid), (docSnapshot) => {
         if (docSnapshot.exists()) {
           setProfileData(docSnapshot.data());  // Update the state when the profile data changes
+          setShopName(docSnapshot.data().nameshop || ''); // Set the initial shop name if it exists
         } else {
           console.log('No such document!');
         }
@@ -30,6 +33,26 @@ const ProfileScreenShop = () => {
       return () => unsubscribe();
     }
   }, []);
+
+  const handleSaveShopName = async () => {
+    const user = auth.currentUser;
+
+    if (!shopName) {
+      Alert.alert('Error', 'Shop name cannot be empty!');
+      return;
+    }
+
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        nameshop: shopName,
+      });
+      Alert.alert('Success', 'Shop name updated successfully!');
+    } catch (error) {
+      console.error('Error updating shop name:', error);
+      Alert.alert('Error', 'Failed to update shop name. Please try again.');
+    }
+  };
 
   const goToEditProfile = () => {
     navigation.navigate('EditProfileScreenShop');  // Correct the name to match the registered screen name
@@ -76,15 +99,26 @@ const ProfileScreenShop = () => {
         />
         {/* Profile Details */}
         <View style={styles.profileDetails}>
-          <Text style={styles.userName}>Username: {profileData.username|| 'N/A'}</Text>
+          <Text style={styles.userName}>Username: {profileData.username || 'N/A'}</Text>
           <Text style={styles.profileName}>firstname: {profileData.firstName || 'N/A'}</Text>
           <Text style={styles.profileLastName}>lastname: {profileData.lastName || 'N/A'}</Text>
           <Text style={styles.profilePhone}>phone: {profileData.phone || 'N/A'}</Text>
           <Text style={styles.profileEmail}>email: {auth.currentUser ? auth.currentUser.email : 'N/A'}</Text>
+          
+          {/* Add TextInput and Save Button for Shop Name */}
+          <TextInput
+            style={styles.shopInput}
+            placeholder="Enter your shop name"
+            value={shopName}
+            onChangeText={setShopName}
+          />
+          <TouchableOpacity style={styles.saveShopButton} onPress={handleSaveShopName}>
+            <Text style={styles.saveShopButtonText}>สร้างชื่อร้าน</Text>
+          </TouchableOpacity>
 
           {/* Edit Button */}
           <TouchableOpacity style={styles.editButton} onPress={goToEditProfile}>
-            <Text style={styles.editButtonText}>แก้ไข</Text>
+            <Text style={styles.editButtonText}>แก้ไขโปรไฟล์</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -127,15 +161,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginLeft: 20,
   },
-  profileID: {
-    fontSize: 16,
-    color: '#fff',
-  },
-  userName:{
+  userName: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
-
   },
   profileName: {
     fontSize: 18,
@@ -153,6 +182,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
   },
+  shopInput: {
+    marginTop: 10,
+    padding: 10,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    width: '100%',
+  },
+  saveShopButton: {
+    marginTop: 15,
+    backgroundColor: '#F44948',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  saveShopButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   editButton: {
     marginTop: 15,
     backgroundColor: '#ff5252',
@@ -166,10 +216,10 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 50,
-    backgroundColor: '#F44948',  // Red color for the button
+    backgroundColor: '#F44948',  
     paddingVertical: 15,
     paddingHorizontal: 50,
-    borderRadius: 30,  // Rounded corners for the button
+    borderRadius: 30,  
   },
   logoutButtonText: {
     color: '#fff',
