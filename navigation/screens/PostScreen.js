@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, ActivityIndicator } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Date Picker for selecting dates
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'; // Import Location for user's current location
+import * as ImagePicker from 'expo-image-picker'; // Import Image Picker for selecting images
+import { storage } from '../../firebase'; // Import Firebase storage
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase storage methods
+import * as LocationReverseGeocode from 'expo-location'; // Import reverse geocoding
 
 const PostScreen = () => {
   const [date, setDate] = useState(new Date());
@@ -13,32 +17,87 @@ const PostScreen = () => {
   const [markerCoordinate, setMarkerCoordinate] = useState(null); // Store the selected marker coordinate
   const [locationAddress, setLocationAddress] = useState(''); // Store location address if needed
   const [initialRegion, setInitialRegion] = useState(null); // User's current location
+  const [imageUri, setImageUri] = useState(null); // State to store selected image URI
+  const [uploading, setUploading] = useState(false); // State for tracking image upload
+
+  const GATE_1_COORDINATE = { latitude: 14.901235, longitude: 102.009467 };
+  const GATE_4_COORDINATE = { latitude: 14.884229, longitude: 102.024803 };
 
   // Request permission to access location and set user's location as initial region
   useEffect(() => {
     const getUserLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Permission to access location was denied.');
-        return;
-      }
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission Denied', 'Permission to access location was denied.');
+          return;
+        }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setInitialRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
+        let location = await Location.getCurrentPositionAsync({});
+        setInitialRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      } catch (error) {
+        Alert.alert('Error', 'Could not fetch location.');
+      }
     };
 
     getUserLocation(); // Fetch user's location when the component mounts
   }, []);
 
-  // Handle taps on the map to drop a marker
-  const handleMapPress = (event) => {
+  // Handle image selection from the gallery
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImageUri(result.assets[0].uri);  // Set the selected image URI
+        uploadImage(result.assets[0].uri);  // Upload image to Firebase Storage
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Image selection failed.');
+    }
+  };
+
+  // Function to upload image to Firebase
+  const uploadImage = async (uri) => {
+    setUploading(true);
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const storageRef = ref(storage, `profileshop/${new Date().getTime()}`);
+      await uploadBytes(storageRef, blob);
+
+      const url = await getDownloadURL(storageRef);
+      setImageUri(url);
+      Alert.alert('Image uploaded successfully!');
+    } catch (error) {
+      Alert.alert('Upload failed', error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handle taps on the map to drop a marker and fetch the address
+  const handleMapPress = async (event) => {
     const { coordinate } = event.nativeEvent;
     setMarkerCoordinate(coordinate); // Set marker to the tapped location
+
+    try {
+      let [address] = await LocationReverseGeocode.reverseGeocodeAsync(coordinate);
+      setLocationAddress(`${address.street}, ${address.city}, ${address.region}`);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch address.');
+    }
   };
 
   // Functions to handle date and time pickers
@@ -54,33 +113,41 @@ const PostScreen = () => {
     setTime(currentTime);
   };
 
+  // Handle selecting a gate and updating the map
+  const selectGate = async (gateCoordinate, gateName) => {
+    setMarkerCoordinate(gateCoordinate);
+    setLocationAddress(gateName);
+    setInitialRegion({
+      ...gateCoordinate,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    });
+  };
+
   if (!initialRegion) {
-    return null; // Optionally, return a loading spinner while location is being fetched
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#F44948" />
+        <Text>Loading location...</Text>
+      </View>
+    );
   }
 
   return (
     <ScrollView style={styles.container}>
-      {/* Map with selectable location */}
-      <MapView
-        style={styles.map}
-        onPress={handleMapPress}
-        initialRegion={initialRegion}  // Use the user's current location as the initial region
-      >
-        {/* Show the marker if a location is selected */}
-        {markerCoordinate && (
-          <Marker
-            coordinate={markerCoordinate}
-            title="Selected Location"
-            description="You clicked here!"
-          />
+      {/* Upload Profile Shop */}
+      <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.profileImage} />  // Show the selected image
+        ) : (
+          <View style={styles.uploadPlaceholder}>
+            <Ionicons name="cloud-upload-outline" size={40} color="gray" />
+            <Text style={styles.uploadText}>Upload Profile Shop</Text>
+          </View>
         )}
-      </MapView>
-
-      {/* Upload Resume */}
-      <TouchableOpacity style={styles.uploadResume}>
-        <Ionicons name="cloud-upload-outline" size={30} color="gray" />
-        <Text style={styles.uploadText}>Upload Profile Shop</Text>
       </TouchableOpacity>
+
+      {uploading && <ActivityIndicator size="small" color="#F44948" />}
 
       {/* Job Title Input */}
       <TextInput style={styles.input} placeholder="ตำแหน่งงาน" />
@@ -123,21 +190,34 @@ const PostScreen = () => {
         )}
       </View>
 
-      {/* Break Time */}
-      <Text style={styles.sectionHeader}>เวลาพัก</Text>
-      <View style={styles.breakContainer}>
-        <TouchableOpacity style={styles.breakButton}>
-          <Text>1 ชม.</Text>
+      {/* Map with selectable location */}
+      <MapView
+        style={styles.map}
+        onPress={handleMapPress}
+        initialRegion={initialRegion}  // Use the user's current location as the initial region
+        region={initialRegion} // Keep updating the region as the user selects different gates
+      >
+        {/* Show the marker if a location is selected */}
+        {markerCoordinate && (
+          <Marker
+            coordinate={markerCoordinate}
+            title="Selected Location"
+            description={locationAddress ? locationAddress : "Fetching address..."}
+          />
+        )}
+      </MapView>
+
+      {/* Gate Selection */}
+      <View style={styles.gateSelection}>
+        <TouchableOpacity style={styles.gateButton} onPress={() => selectGate(GATE_1_COORDINATE, 'ประตู 1')}>
+          <Text style={styles.gateButtonText}>ประตู 1</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.breakButton}>
-          <Text>2 ชม.</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.breakButton}>
-          <Text>3 ชม.</Text>
+        <TouchableOpacity style={styles.gateButton} onPress={() => selectGate(GATE_4_COORDINATE, 'ประตู 4')}>
+          <Text style={styles.gateButtonText}>ประตู 4</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Location */}
+      {/* Location Address */}
       <TextInput style={styles.input} placeholder="ที่ตั้ง" value={locationAddress} />
 
       {/* Extra Details */}
@@ -155,6 +235,7 @@ const PostScreen = () => {
           <Text style={styles.buttonText}>โพสต์งาน</Text>
         </TouchableOpacity>
       </View>
+      <View style={{ width: '100%', height: 60 }} />
     </ScrollView>
   );
 };
@@ -165,15 +246,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 20,
   },
-  uploadResume: {
-    backgroundColor: '#ffeceb',
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    backgroundColor: '#f9f9f9',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  profileImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: 25,
+  },
+  uploadPlaceholder: {
+    alignItems: 'center',
+    paddingVertical: 40,
   },
   uploadText: {
     marginTop: 10,
@@ -212,29 +306,25 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
   },
-  sectionHeader: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  breakContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  breakButton: {
-    backgroundColor: '#ffeceb',
-    padding: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ff8a80',
-    width: '30%',
-    alignItems: 'center',
-  },
   map: {
     width: '100%',
-    height: 250,  // Increased map height for better visibility
+    height: 250,
     borderRadius: 10,
     marginBottom: 20,
+  },
+  gateSelection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  gateButton: {
+    backgroundColor: '#ddd',
+    padding: 15,
+    borderRadius: 10,
+  },
+  gateButtonText: {
+    color: '#333',
+    fontSize: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
