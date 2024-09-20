@@ -4,11 +4,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 import { storage, db, auth } from '../../firebase'; // Adjust for your firebase setup
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { addDoc, collection } from 'firebase/firestore';
 import * as LocationReverseGeocode from 'expo-location';
-import * as ImagePicker from 'expo-image-picker';
 const PostScreen = ({ navigation }) => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -186,7 +186,7 @@ const PostScreen = ({ navigation }) => {
       {uploading && <ActivityIndicator size="small" color="#F44948" />}
 
       <TextInput style={styles.input} placeholder="ตำแหน่งงาน" value={position} onChangeText={setPosition} />
-      <TextInput style={styles.input} placeholder="รายชั่วโมง / รายวัน" value={perhrs} onChangeText={setPerHrs} keyboardType="numeric" />
+      <TextInput style={styles.input} placeholder="ค่าจ้างรายชั่วโมง" value={perhrs} onChangeText={setPerHrs} keyboardType="numeric" />
       <TextInput style={styles.input} placeholder="รายได้รวม" value={sum} onChangeText={setSum} keyboardType="numeric" />
       <TextInput style={styles.input} placeholder="จำนวนคน" value={person} onChangeText={setPerson} keyboardType="numeric" />
 

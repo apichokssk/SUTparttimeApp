@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, storage } from '../../firebase';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,12 +14,11 @@ const EditProFileScreen = ({ navigation }) => {
   const [profile, setProfile] = useState(null);
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false); // State for tracking image upload
-  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
 
-  const user = auth.currentUser; // Get the current authenticated user
+  const user = auth.currentUser;
 
-  // Function to pick an image from the device's gallery
   const pickImage = async () => {
+    // Request permission to access the image library
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'We need permission to access your photo library');
@@ -29,37 +28,15 @@ const EditProFileScreen = ({ navigation }) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [1, 1],
+      aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri); // Set the selected image URI
-      setModalVisible(false); // Close modal after selecting image
+      setImage(result.assets[0].uri);
     }
   };
 
-  // Function to take a photo using the device's camera
-  const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'We need permission to access your camera');
-      return;
-    }
-
-    let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri); // Set the captured image URI
-      setModalVisible(false); // Close modal after taking photo
-    }
-  };
-
-  // Fetch the user profile data from Firestore
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
@@ -78,7 +55,7 @@ const EditProFileScreen = ({ navigation }) => {
           console.error('Error fetching user data:', error);
           Alert.alert('Error', 'Could not load profile data.');
         } finally {
-          setLoading(false); // Set loading state to false once data is fetched
+          setLoading(false);
         }
       }
     };
@@ -86,33 +63,37 @@ const EditProFileScreen = ({ navigation }) => {
     fetchUserProfile();
   }, [user]);
 
-  // Upload the selected image to Firebase Storage and return the download URL
   const uploadImageToStorage = async (uri) => {
-    setUploading(true); // Set uploading state to true during upload process
+    setUploading(true);
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-
+  
       const storageRef = ref(storage, `profile/${user.uid}.jpg`);
+
       await uploadBytes(storageRef, blob);
+  
       const downloadURL = await getDownloadURL(storageRef);
-      return downloadURL; // Return the image download URL
+      return downloadURL;
     } catch (error) {
       console.error('Error uploading image:', error);
       Alert.alert('Error', 'Failed to upload image.');
       return null;
     } finally {
-      setUploading(false); // Reset uploading state after process completion
+      setUploading(false);
     }
   };
 
-  // Function to handle profile update and save data to Firestore
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+  
   const handleSave = async () => {
     if (user) {
       try {
         let profileImageUrl = profile; // Keep old image if no new one is uploaded
         if (image) {
-          profileImageUrl = await uploadImageToStorage(image); // Upload new image if selected
+          profileImageUrl = await uploadImageToStorage(image);
         }
 
         await setDoc(doc(db, 'users', user.uid), {
@@ -124,7 +105,7 @@ const EditProFileScreen = ({ navigation }) => {
         }, { merge: true });
 
         Alert.alert('Success', 'Profile saved successfully!');
-        navigation.goBack(); // Navigate back after saving
+        navigation.goBack();
       } catch (error) {
         console.error('Error saving profile:', error);
         Alert.alert('Error', 'Failed to save profile.');
@@ -134,12 +115,6 @@ const EditProFileScreen = ({ navigation }) => {
     }
   };
 
-  // Cancel and navigate back without saving changes
-  const handleCancel = () => {
-    navigation.goBack();
-  };
-
-  // Display loading indicator while profile data is being fetched
   if (loading) {
     return (
       <View style={styles.container}>
@@ -151,11 +126,11 @@ const EditProFileScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Touchable image to open modal */}
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
+      {/* Touchable image to pick new image */}
+      <TouchableOpacity onPress={pickImage}>
         {image || profile ? (
           <Image
-            source={{ uri: image || profile }} // Show either the selected image or the current profile image
+            source={{ uri: image || profile }}
             style={styles.image}
           />
         ) : (
@@ -164,28 +139,6 @@ const EditProFileScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       {uploading && <ActivityIndicator size="small" color="#ff5252" />}
-
-      {/* Modal for selecting image options */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalView}>
-            <TouchableOpacity style={styles.optionButton} onPress={pickImage}>
-              <Text style={styles.optionText}>ภาพในเครื่อง</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionButton} onPress={takePhoto}>
-              <Text style={styles.optionText}>ถ่ายรูป</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.cancelButtonText}>ยกเลิก</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
       {/* Form for editing profile */}
       <View style={styles.form}>
@@ -228,7 +181,6 @@ const EditProFileScreen = ({ navigation }) => {
   );
 };
 
-// Styles for the component UI
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -242,35 +194,6 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     marginBottom: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalView: {
-    width: '80%',
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  optionButton: {
-    backgroundColor: '#ff8a80',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 20,
-    marginVertical: 10,
-  },
-  optionText: {
-    color: '#fff',
-    fontSize: 16,
   },
   form: {
     width: '100%',

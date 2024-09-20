@@ -188,8 +188,8 @@ const EditPostScreen = ({ route, navigation }) => {
       {uploading && <ActivityIndicator size="small" color="#F44948" />}
 
       <TextInput style={styles.input} placeholder="ตำแหน่งงาน" value={position} onChangeText={setPosition} />
-      <TextInput style={styles.input} placeholder="รายชั่วโมง / รายวัน" value={perhrs} onChangeText={setPerHrs} keyboardType="numeric" />
-      <TextInput style={styles.input} placeholder="รายได้รวม" value={sum} onChangeText={setSum} keyboardType="numeric" />
+      <TextInput style={styles.input} placeholder="ค่าจ้าง" value={perhrs} onChangeText={setPerHrs} keyboardType="numeric" />
+      <TextInput style={styles.input} placeholder="รวม" value={sum} onChangeText={setSum} keyboardType="numeric" />
       <TextInput style={styles.input} placeholder="จำนวนคน" value={person} onChangeText={setPerson} keyboardType="numeric" />
 
       {/* Work Start Date */}

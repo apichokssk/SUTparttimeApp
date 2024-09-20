@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { doc, getDoc, updateDoc } from 'firebase/firestore';  // Import Firestore functions
+import { doc, updateDoc } from 'firebase/firestore';  // Import Firestore functions
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
 import { onSnapshot } from 'firebase/firestore'; 
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ProfileScreenShop = () => {
   const navigation = useNavigation();  // ใช้ navigation เพื่อนำทาง
@@ -93,28 +94,24 @@ const ProfileScreenShop = () => {
     <View style={styles.container}>
       <View style={styles.profileCard}>
         {/* Profile Image */}
-        <Image
-          source={{ uri: profileData.profile || 'https://example.com/placeholder.png' }}  // Use profile image or placeholder
-          style={styles.profileImage}
-        />
+        <TouchableOpacity onPress={goToEditProfile}>
+          {profileData.profile ? (
+            <Image
+              source={{ uri: profileData.profile }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <Ionicons name="person-circle" size={100} color="#fff" />
+          )}
+        </TouchableOpacity>
+
         {/* Profile Details */}
         <View style={styles.profileDetails}>
-          <Text style={styles.userName}>Username: {profileData.username || 'N/A'}</Text>
-          <Text style={styles.profileName}>firstname: {profileData.firstName || 'N/A'}</Text>
-          <Text style={styles.profileLastName}>lastname: {profileData.lastName || 'N/A'}</Text>
+          <Text style={styles.userName}>Hi: {profileData.username || 'N/A'}</Text>
+          <Text style={styles.profilePhone}>ShopName: {profileData.nameshop || 'N/A'}</Text>
           <Text style={styles.profilePhone}>phone: {profileData.phone || 'N/A'}</Text>
           <Text style={styles.profileEmail}>email: {auth.currentUser ? auth.currentUser.email : 'N/A'}</Text>
           
-          {/* Add TextInput and Save Button for Shop Name */}
-          <TextInput
-            style={styles.shopInput}
-            placeholder="Enter your shop name"
-            value={shopName}
-            onChangeText={setShopName}
-          />
-          <TouchableOpacity style={styles.saveShopButton} onPress={handleSaveShopName}>
-            <Text style={styles.saveShopButtonText}>สร้างชื่อร้าน</Text>
-          </TouchableOpacity>
 
           {/* Edit Button */}
           <TouchableOpacity style={styles.editButton} onPress={goToEditProfile}>
@@ -162,7 +159,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   userName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
   },

@@ -62,10 +62,14 @@ const HeaderBarShop = () => {
       {/* รูปภาพโปรไฟล์ */}
       <View style={{ flex: 0.25 }}>
         <TouchableOpacity onPress={goToProfile}>
-          <Image
-            source={{ uri: profileData.profile || 'https://example.com/placeholder.png' }}  // Profile image or placeholder
-            style={{ width: 60, height: 60, borderRadius: 100 }}
-          />
+          {profileData.profile ? (
+            <Image
+              source={{ uri: profileData.profile }}
+              style={{ width: 60, height: 60, borderRadius: 100 }}
+            />
+          ) : (
+            <Ionicons name="person-circle" size={60} color="#fff" />
+          )}
         </TouchableOpacity>
       </View>
     </View>

@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';  // Import navigation
 export default function DetailScreenShop({ route }) {
     const { post } = route.params;  // Get the passed post data
     const [animationVisible, setAnimationVisible] = useState(false);
-    const [fadeAnim] = useState(new Animated.Value(0)); 
+    const [fadeAnim] = useState(new Animated.Value(0));
     const [shopName, setShopName] = useState('');  // State for storing the shop name
     const navigation = useNavigation();  // Get navigation object
 
@@ -44,44 +44,44 @@ export default function DetailScreenShop({ route }) {
                 source={{ uri: post.profileShop }}  // Display the shop's image from the post
                 style={styles.shopImage}
             />
-            
+
             {/* Shop Details */}
             <View style={styles.detailContainer}>
                 <View style={styles.header}>
                     {/* Display nameshop instead of position */}
                     <Text style={styles.title}>{shopName} {post.gate}</Text>
                     <TouchableOpacity style={styles.editButton} onPress={navigateToEditScreen}>
-                        <Text style={styles.editButtonText}>Edit</Text>
+                        <Text style={styles.editButtonText}>แก้ไขโพสต์</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.infoContainer}>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>📦</Text>
-                        <Text>{post.position}</Text>
+                        <Text>ตำแหน่งงาน: {post.position}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💵</Text>
-                        <Text>Rate: {post.perhrs} / hour</Text>
+                        <Text>ค่าจ้าง: {post.perhrs} / ชั่วโมง</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💼</Text>
-                        <Text>Total Income: {post.sum}</Text>
+                        <Text>รวม: {post.sum} บาท</Text>
                     </View>
                 </View>
             </View>
 
             {/* Work Details */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Details</Text>
+                <Text style={styles.sectionTitle}>รายละเอียด</Text>
                 <View style={styles.infoRow}>
-                    <Text>Days: {post.person}</Text>
+                    <Text>วันทำงาน: {post.person} วัน</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>Time: {post.time}</Text>
+                    <Text>เวลาเข้างาน: {post.time} น.</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>Scope of Work: {post.textdetail}</Text>
+                    <Text>งานที่มอบหมาย: {post.textdetail}</Text>
                 </View>
             </View>
 
@@ -100,16 +100,6 @@ export default function DetailScreenShop({ route }) {
                     title={post.position}
                 />
             </MapView>
-
-            {/* Success Animation */}
-            {animationVisible && (
-                <Animated.View style={[styles.successOverlay, { opacity: fadeAnim }]}>
-                    <View style={styles.successContainer}>
-                        <Image source={require('./img2/accept.png')} style={styles.successImage} />
-                        <Text style={styles.successText}>Successfully Applied!</Text>
-                    </View>
-                </Animated.View>
-            )}
         </ScrollView>
     );
 }
@@ -169,9 +159,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     map: {
-        width: '100%',
-        height: 300,
+        width: '90%',
+        height: 200,
         marginVertical: 10,
+        alignSelf: 'center',
     },
     successOverlay: {
         position: 'absolute',

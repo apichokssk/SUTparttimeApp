@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-na
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { doc, onSnapshot } from 'firebase/firestore';  // Import Firestore functions for real-time updates
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 const ProfileScreen = () => {
   const navigation = useNavigation();  // Use navigation to navigate to other screens
   const [profileData, setProfileData] = useState({});  // State to store profile data
@@ -70,14 +70,20 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.profileCard}>
         {/* Profile Image */}
-        <Image
-          source={{ uri: profileData.profile || 'https://example.com/placeholder.png' }}  // Use profile image or placeholder
-          style={styles.profileImage}
-        />
+        <TouchableOpacity onPress={goToEditProfile}>
+          {profileData.profile ? (
+            <Image
+              source={{ uri: profileData.profile }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <Ionicons name="person-circle" size={100} color="#fff" />
+          )}
+        </TouchableOpacity>
 
         {/* Profile Details */}
         <View style={styles.profileDetails}>
-          <Text style={styles.userName}>Username: {profileData.username || 'N/A'}</Text>
+          <Text style={styles.userName}>Hi : {profileData.username || 'N/A'}</Text>
           <Text style={styles.profileName}>firstname: {profileData.firstName || 'N/A'}</Text>
           <Text style={styles.profileLastName}>lastname: {profileData.lastName || 'N/A'}</Text>
           <Text style={styles.profilePhone}>phone: {profileData.phone || 'N/A'}</Text>
@@ -133,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   userName:{
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
   },

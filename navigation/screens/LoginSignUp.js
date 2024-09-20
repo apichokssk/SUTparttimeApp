@@ -73,9 +73,20 @@ export default function LoginSignUp({ navigation }) {
                         <Ionicons name={passwordVisible ? 'eye' : 'eye-off'} size={24} color="gray" />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity>
+
+                {/* Forgot Password Button */}
+                <TouchableOpacity onPress={() => {
+                    try {
+                        navigation.navigate('Forgot');
+                    } catch (error) {
+                        console.error('Navigation Error:', error);
+                    }
+                }}>
                     <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                 </TouchableOpacity>
+
+
+                {/* Login Button */}
                 <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                     <Text style={styles.loginButtonText}>Login</Text>
                 </TouchableOpacity>

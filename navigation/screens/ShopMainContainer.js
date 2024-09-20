@@ -16,12 +16,12 @@ export default function ShopMainContainer() {
                 component={HomeShopStack}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Home</Text>
+                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Home</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                             name="home-outline"
-                            color={focused ? 'tomato' : color}
+                            color={focused ? '#F44948' : color}
                             size={size}
                         />
                     ),
@@ -32,12 +32,12 @@ export default function ShopMainContainer() {
                 component={WorkShopScreen}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Work</Text>
+                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Work</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                             name="newspaper-outline"
-                            color={focused ? 'tomato' : color}
+                            color={focused ? '#F44948' : color}
                             size={size}
                         />
                     ),
@@ -48,12 +48,12 @@ export default function ShopMainContainer() {
                 component={MessageShopScreen}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Message</Text>
+                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Message</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                             name="chatbox-ellipses-outline"
-                            color={focused ? 'tomato' : color}
+                            color={focused ? '#F44948' : color}
                             size={size}
                         />
                     ),

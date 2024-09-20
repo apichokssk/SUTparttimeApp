@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';  // ใช้สำหรับแผนที่
+import MapView, { Marker } from 'react-native-maps';
 
 export default function DetailScreen() {
-    const [animationVisible, setAnimationVisible] = useState(false);  // สถานะสำหรับแสดงอนิเมชั่น
-    const [fadeAnim] = useState(new Animated.Value(0));  // สร้างค่า fade เริ่มต้น
+    const [animationVisible, setAnimationVisible] = useState(false);  // State for animation visibility
+    const [fadeAnim] = useState(new Animated.Value(0));  // Starting value for fade animation
 
-    // ฟังก์ชันเพื่อแสดง alert
+    // Function to show an alert
     const showAlert = () => {
         Alert.alert(
-            "ยืนยันการสมัคร",  // หัวข้อ
-            "คุณจะยืนยันการสมัครใช่ไหม",  // ข้อความในกล่องแจ้งเตือน
+            "ยืนยันการสมัคร",  // Alert title
+            "คุณจะยืนยันการสมัครใช่ไหม",  // Alert message
             [
                 {
                     text: "ยกเลิก",
@@ -21,42 +21,42 @@ export default function DetailScreen() {
                     text: "ยืนยัน",
                     onPress: () => {
                         console.log("การสมัครสำเร็จ");
-                        startAnimation();  // เรียกใช้งานอนิเมชั่นเมื่อกด "ยืนยัน"
+                        startAnimation();  // Start animation when "ยืนยัน" (Confirm) is pressed
                     }
                 }
             ]
         );
     };
 
-    // ฟังก์ชันเพื่อเริ่มอนิเมชั่น
+    // Function to start the success animation
     const startAnimation = () => {
-        setAnimationVisible(true);  // แสดงอนิเมชั่น
+        setAnimationVisible(true);  // Show animation
         Animated.timing(fadeAnim, {
-            toValue: 1, // ทำให้มองเห็น
-            duration: 500, // ระยะเวลาในการแสดงอนิเมชั่น
+            toValue: 1, // Fade in
+            duration: 500, // Animation duration
             useNativeDriver: true,
         }).start(() => {
             setTimeout(() => {
                 Animated.timing(fadeAnim, {
-                    toValue: 0, // ทำให้โปร่งใสหายไป
+                    toValue: 0, // Fade out
                     duration: 500,
                     useNativeDriver: true,
                 }).start(() => {
-                    setAnimationVisible(false);  // ซ่อนอนิเมชั่นหลังจาก 2 วินาที
+                    setAnimationVisible(false);  // Hide animation after 2 seconds
                 });
-            }, 2000);  // แสดงผล 2 วินาทีแล้วจึงซ่อน
+            }, 2000);  // Animation will be visible for 2 seconds
         });
     };
 
     return (
         <ScrollView style={styles.container}>
-            {/* รูปภาพร้าน */}
+            {/* Shop Image */}
             <Image
-                source={require('./img2/pd.jpg')}  // แทนที่ด้วยรูปภาพร้านของคุณ
+                source={require('./img2/pd.jpg')}  // Replace with your shop's image
                 style={styles.shopImage}
             />
             
-            {/* รายละเอียดร้าน */}
+            {/* Shop Details */}
             <View style={styles.detailContainer}>
                 <View style={styles.header}>
                     <Text style={styles.title}>ร้านอะเเดพแมน สาขา มทส.</Text>
@@ -81,7 +81,7 @@ export default function DetailScreen() {
                 </View>
             </View>
 
-            {/* รายละเอียดอื่น ๆ */}
+            {/* Other Details */}
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>รายละเอียด</Text>
                 <View style={styles.infoRow}>
@@ -95,40 +95,39 @@ export default function DetailScreen() {
                 </View>
             </View>
 
-            {/* แผนที่ */}
+            {/* Map Section */}
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: 14.8802,  // ค่า latitude, longitude ของตำแหน่งที่ต้องการ
+                    latitude: 14.8802,  // Latitude and longitude of the location
                     longitude: 102.0154,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
             >
                 <Marker
-                    coordinate={{ latitude: 14.8802, longitude: 102.0154 }}  // ตำแหน่งแผนที่
+                    coordinate={{ latitude: 14.8802, longitude: 102.0154 }}  // Marker position
                     title="ร้านอะเเดพแมน สาขา มทส."
                 />
             </MapView>
 
-            {/* ข้อมูลเพิ่มเติม */}
+            {/* Additional Information */}
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>ข้อมูลเพิ่มเติม</Text>
                 <Text>สวัสดิการ: เข้างานไม่เกิน 22.00 คืนวันที่ 3 สิงหาคม</Text>
                 <Text>รายละเอียดบลาๆๆ</Text>
             </View>
 
-            {/* อนิเมชั่นยืนยัน */}
+            {/* Success Animation */}
             {animationVisible && (
                 <Animated.View style={[styles.successOverlay, { opacity: fadeAnim }]}>
                 <View style={styles.successContainer}>
-                    {/* แสดงรูปภาพ */}
+                    {/* Success Image */}
                     <Image source={require('./img2/accept.png')} style={styles.successImage} />
-                    {/* แสดงข้อความ */}
+                    {/* Success Text */}
                     <Text style={styles.successText}>การสมัครสำเร็จ!</Text>
                 </View>
             </Animated.View>
-            
             )}
         </ScrollView>
     );
@@ -208,13 +207,15 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 18,
         fontWeight: 'bold',
-        alignContent:'center'
+        textAlign: 'center',
     },
     successImage: {
-        height:25,
-        width:25
+        height: 25,
+        width: 25,
     },
-    successContainer:{
-        flexDirection:'row'
+    successContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Image, TouchableOpacity, Alert, ActivityIndicator, Modal } from 'react-native';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, storage } from '../../firebase';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const EditProFileScreenShop = ({ navigation }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
+  const [shopName, setShopName] = useState('');
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false); // State for tracking image upload
+  const [uploading, setUploading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const user = auth.currentUser;
 
+  // Function to pick an image from the device's gallery
   const pickImage = async () => {
-    // Request permission to access the image library
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'We need permission to access your photo library');
@@ -33,9 +34,31 @@ const EditProFileScreenShop = ({ navigation }) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      setModalVisible(false); // Close the modal
     }
   };
 
+  // Function to take a photo using the device's camera
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need permission to access your camera');
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      setModalVisible(false); // Close the modal
+    }
+  };
+
+  // Fetch the user profile data from Firestore
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
@@ -43,9 +66,8 @@ const EditProFileScreenShop = ({ navigation }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setFirstName(userData.firstName || '');
-            setLastName(userData.lastName || '');
             setPhone(userData.phone || '');
+            setShopName(userData.nameshop || '');
             setProfile(userData.profile || '');
           } else {
             console.log('No such document!');
@@ -62,16 +84,14 @@ const EditProFileScreenShop = ({ navigation }) => {
     fetchUserProfile();
   }, [user]);
 
+  // Upload the selected image to Firebase Storage and return the download URL
   const uploadImageToStorage = async (uri) => {
     setUploading(true);
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-  
       const storageRef = ref(storage, `profile/${user.uid}.jpg`);
-
       await uploadBytes(storageRef, blob);
-  
       const downloadURL = await getDownloadURL(storageRef);
       return downloadURL;
     } catch (error) {
@@ -83,10 +103,6 @@ const EditProFileScreenShop = ({ navigation }) => {
     }
   };
 
-  const handleCancel = () => {
-    navigation.goBack();
-  };
-  
   const handleSave = async () => {
     if (user) {
       try {
@@ -97,8 +113,7 @@ const EditProFileScreenShop = ({ navigation }) => {
 
         await setDoc(doc(db, 'users', user.uid), {
           profile: profileImageUrl,
-          firstName: firstName,
-          lastName: lastName,
+          nameshop: shopName,
           phone: phone,
           email: user.email,
         }, { merge: true });
@@ -125,29 +140,50 @@ const EditProFileScreenShop = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Touchable image to pick new image */}
-      <TouchableOpacity onPress={pickImage}>
-        <Image source={{ uri: image || profile || 'https://example.com/placeholder.png' }} style={styles.image} />
+      {/* Touchable image to open modal */}
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
+        {image || profile ? (
+          <Image
+            source={{ uri: image || profile }}
+            style={styles.image}
+          />
+        ) : (
+          <Ionicons name="person-circle" size={200} color="#e0e0e0" />
+        )}
       </TouchableOpacity>
 
       {uploading && <ActivityIndicator size="small" color="#ff5252" />}
 
+      {/* Modal for image options */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <TouchableOpacity style={styles.optionButton} onPress={pickImage}>
+              <Text style={styles.optionText}>ภาพในเครื่อง</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.optionButton} onPress={takePhoto}>
+              <Text style={styles.optionText}>ถ่ายรูป</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelButtonText}>ยกเลิก</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* Form for editing profile */}
       <View style={styles.form}>
-        <Text style={styles.label}>First Name:</Text>
+        <Text style={styles.label}>Shop Name:</Text>
         <TextInput
           style={styles.input}
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-        />
-
-        <Text style={styles.label}>Last Name:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
+          placeholder="Shop Name"
+          value={shopName}
+          onChangeText={setShopName}
         />
 
         <Text style={styles.label}>Phone:</Text>
@@ -162,7 +198,7 @@ const EditProFileScreenShop = ({ navigation }) => {
 
       {/* Cancel and Save buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+        <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
           <Text style={styles.cancelButtonText}>ยกเลิก</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={uploading}>
@@ -186,6 +222,30 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     marginBottom: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  optionButton: {
+    backgroundColor: '#ff8a80',
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+    marginVertical: 10,
+  },
+  optionText: {
+    color: '#fff',
+    fontSize: 16,
   },
   form: {
     width: '100%',

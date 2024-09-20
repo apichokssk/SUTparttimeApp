@@ -12,7 +12,7 @@ export default function LoginSignUp({ navigation }) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [userType, setUserType] = useState('นักศึกษา','ร้านค้า');  // User type selection
+    const [userType, setUserType] = useState('นักศึกษา', 'ร้านค้า');  // User type selection
 
     // Handle user login
     const handleLogin = async () => {
@@ -20,7 +20,7 @@ export default function LoginSignUp({ navigation }) {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             console.log('User logged in:', userCredential.user);
             const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-            
+
             if (userDoc.exists()) {
                 const userType = userDoc.data().userType;
                 if (userType === 'นักศึกษา') {
@@ -119,7 +119,10 @@ export default function LoginSignUp({ navigation }) {
                                 <Ionicons name={passwordVisible ? "eye" : "eye-off"} size={24} color="gray" />
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            console.log('Forgot Password pressed');  // Check if this is triggered
+                            navigation.navigate('ForgotScreen');
+                        }}>
                             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
