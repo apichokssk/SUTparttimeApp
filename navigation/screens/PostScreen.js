@@ -154,7 +154,7 @@ const PostScreen = ({ navigation }) => {
       Alert.alert('Success', 'Post saved successfully!');
   
       // Navigate to WorkScreenShop within ShopMainContainer
-      navigation.navigate('ShopMainContainer', { screen: 'WorkShop' });
+      navigation.goBack();
     } catch (error) {
       Alert.alert('Error', 'Failed to save post.');
       console.error(error);

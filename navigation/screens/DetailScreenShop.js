@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase';  // Adjust your Firebase path
 import { useNavigation } from '@react-navigation/native';  // Import navigation
 
 export default function DetailScreenShop({ route }) {
     const { post } = route.params;  // Get the passed post data
-    const [animationVisible, setAnimationVisible] = useState(false);
-    const [fadeAnim] = useState(new Animated.Value(0));
     const [shopName, setShopName] = useState('');  // State for storing the shop name
     const navigation = useNavigation();  // Get navigation object
 
@@ -35,6 +33,34 @@ export default function DetailScreenShop({ route }) {
     const navigateToEditScreen = () => {
         // Navigate to the EditPostScreen, passing the post data
         navigation.navigate('EditPostScreen', { post });
+    };
+
+    // Function to delete the post
+    const handleDeletePost = () => {
+        Alert.alert(
+            "ยืนยันการลบโพสต์",
+            "คุณต้องการลบโพสต์นี้ใช่ไหม?",
+            [
+                {
+                    text: "ยกเลิก",
+                    style: "cancel"
+                },
+                {
+                    text: "ยืนยัน",
+                    onPress: async () => {
+                        try {
+                            // ลบโพสต์จาก Firebase Firestore
+                            await deleteDoc(doc(db, 'blog', post.id));
+                            Alert.alert('ลบโพสต์สำเร็จ');
+                            navigation.goBack(); // กลับไปยังหน้าก่อนหน้า
+                        } catch (error) {
+                            console.error('Error deleting post: ', error);
+                            Alert.alert('เกิดข้อผิดพลาดในการลบโพสต์');
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     return (
@@ -75,7 +101,7 @@ export default function DetailScreenShop({ route }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>รายละเอียด</Text>
                 <View style={styles.infoRow}>
-                    <Text>วันทำงาน: {post.person} วัน</Text>
+                    <Text>จำนวนคน: {post.person} คน</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <Text>เวลาเข้างาน: {post.time} น.</Text>
@@ -100,6 +126,13 @@ export default function DetailScreenShop({ route }) {
                     title={post.position}
                 />
             </MapView>
+
+            {/* Delete Post Button */}
+            <View style={styles.deleteButtonContainer}>
+                <TouchableOpacity style={styles.deleteButton} onPress={handleDeletePost}>
+                    <Text style={styles.deleteButtonText}>ลบโพสต์</Text>
+                </TouchableOpacity>
+            </View>
         </ScrollView>
     );
 }
@@ -164,28 +197,19 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         alignSelf: 'center',
     },
-    successOverlay: {
-        position: 'absolute',
-        top: '30%',
-        left: '10%',
-        right: '10%',
-        backgroundColor: '#6ce600',
-        padding: 20,
-        borderRadius: 10,
-        justifyContent: 'center',
+    deleteButtonContainer: {
         alignItems: 'center',
+        marginVertical: 20,
     },
-    successText: {
-        color: 'white',
-        fontSize: 18,
+    deleteButton: {
+        backgroundColor: '#ff4d4d',
+        paddingVertical: 10,
+        paddingHorizontal: 30,
+        borderRadius: 20,
+    },
+    deleteButtonText: {
+        color: '#fff',
         fontWeight: 'bold',
-        alignContent: 'center',
-    },
-    successImage: {
-        height: 25,
-        width: 25,
-    },
-    successContainer: {
-        flexDirection: 'row',
+        fontSize: 16,
     },
 });

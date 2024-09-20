@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase'; // Make sure your Firebase setup is correct
+import { doc, getDoc, sum } from 'firebase/firestore';
+import { db } from '../firebase'; // แน่ใจว่า path Firebase setup ถูกต้อง
 
-export default function Box({ imgSource, textSource, time, gate, person, navigation, userId }) {
-    const [nameshop, setNameshop] = useState('');
+export default function Box({ imgSource, textSource, time, gate, person, navigation, userId, position, postId,textdetail,sum }) {
+    const [nameshop, setNameshop] = useState('Unknown Shop'); // Default to 'Unknown Shop'
+    const [userData, setUserData] = useState(null); // ใช้เก็บข้อมูลผู้ใช้ทั้งหมด
 
-    // Fetch the shop name from the "users" collection based on userId
+    // ดึงชื่อร้านจาก collection 'users' ตาม userId
     useEffect(() => {
         const fetchNameshop = async () => {
+            if (!userId) return;
+
             try {
-                const userDoc = doc(db, 'users', userId); // Fetch from 'users' collection
+                const userDoc = doc(db, 'users', userId); // ดึงจาก 'users' collection
                 const docSnapshot = await getDoc(userDoc);
                 if (docSnapshot.exists()) {
                     const userData = docSnapshot.data();
                     setNameshop(userData.nameshop || 'Unknown Shop');
+                    setUserData(userData); // เก็บข้อมูลผู้ใช้ทั้งหมด
                 } else {
                     console.log('No such user!');
                 }
@@ -24,21 +28,33 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
             }
         };
 
-        if (userId) {
-            fetchNameshop();
-        }
+        fetchNameshop();
     }, [userId]);
 
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('DetailScreen')}>
+        <TouchableOpacity
+            onPress={() => navigation.navigate('DetailScreen', {
+                imgSource, // ส่งข้อมูลรูปภาพ
+                textSource, // ส่งข้อมูลค่าจ้างต่อชั่วโมง
+                time, // ส่งข้อมูลเวลาเข้างาน
+                gate, // ส่งข้อมูลประตู
+                person, // ส่งจำนวนวันทำงาน
+                nameshop, // ส่งชื่อร้าน
+                position, // ส่งตำแหน่งงาน
+                postId, // ส่ง postId เพื่อดึงข้อมูลโพสต์เพิ่มเติม
+                textdetail, // Ensure this is passed correctly
+                sum,
+            })}
+
+        >
             <View style={styles.container}>
-                {/* Product Image */}
+                {/* ภาพสินค้า */}
                 <Image source={imgSource} style={styles.image} />
 
-                {/* Product Information */}
+                {/* ข้อมูลสินค้า */}
                 <View style={styles.infoSection}>
                     <Text style={styles.title}>
-                        {nameshop} {gate}
+                        {nameshop} {gate ? `(${gate})` : ''}
                     </Text>
                     <View style={styles.infoContainer}>
                         <Ionicons name="time-outline" size={16} color="#fff" />
@@ -47,7 +63,7 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
                         </Text>
                     </View>
 
-                    {/* Price per hour */}
+                    {/* ค่าจ้างต่อชั่วโมง */}
                     <View style={styles.priceContainer}>
                         <Text style={styles.priceText}>
                             {textSource}
@@ -62,7 +78,7 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        backgroundColor: '#F18180',  // Pink background
+        backgroundColor: '#F18180',  // สีพื้นหลังชมพู
         borderRadius: 20,
         height: 120,
         width: '95%',

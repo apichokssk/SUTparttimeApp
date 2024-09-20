@@ -1,147 +1,87 @@
-import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-export default function DetailScreen() {
-    const [animationVisible, setAnimationVisible] = useState(false);  // State for animation visibility
-    const [fadeAnim] = useState(new Animated.Value(0));  // Starting value for fade animation
-
-    // Function to show an alert
-    const showAlert = () => {
-        Alert.alert(
-            "ยืนยันการสมัคร",  // Alert title
-            "คุณจะยืนยันการสมัครใช่ไหม",  // Alert message
-            [
-                {
-                    text: "ยกเลิก",
-                    onPress: () => console.log("การสมัครถูกยกเลิก"),
-                    style: "cancel"
-                },
-                {
-                    text: "ยืนยัน",
-                    onPress: () => {
-                        console.log("การสมัครสำเร็จ");
-                        startAnimation();  // Start animation when "ยืนยัน" (Confirm) is pressed
-                    }
-                }
-            ]
-        );
-    };
-
-    // Function to start the success animation
-    const startAnimation = () => {
-        setAnimationVisible(true);  // Show animation
-        Animated.timing(fadeAnim, {
-            toValue: 1, // Fade in
-            duration: 500, // Animation duration
-            useNativeDriver: true,
-        }).start(() => {
-            setTimeout(() => {
-                Animated.timing(fadeAnim, {
-                    toValue: 0, // Fade out
-                    duration: 500,
-                    useNativeDriver: true,
-                }).start(() => {
-                    setAnimationVisible(false);  // Hide animation after 2 seconds
-                });
-            }, 2000);  // Animation will be visible for 2 seconds
-        });
-    };
+const DetailScreen = ({ route }) => {
+    const { imgSource, textSource, time, gate, person, nameshop, position, sum, textdetail } = route.params;
 
     return (
         <ScrollView style={styles.container}>
-            {/* Shop Image */}
-            <Image
-                source={require('./img2/pd.jpg')}  // Replace with your shop's image
-                style={styles.shopImage}
-            />
-            
-            {/* Shop Details */}
-            <View style={styles.detailContainer}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>ร้านอะเเดพแมน สาขา มทส.</Text>
-                    <TouchableOpacity style={styles.applyButton} onPress={showAlert}>
-                        <Text style={styles.applyButtonText}>สมัคร</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.infoContainer}>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.icon}>📦</Text>
-                        <Text>พนักงานคลังสินค้า</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.icon}>💵</Text>
-                        <Text>รายได้: ...... / ชั่วโมง</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.icon}>💼</Text>
-                        <Text>รายได้รวม: ......</Text>
-                    </View>
-                </View>
+            {/* Image Section */}
+            <View style={styles.imageContainer}>
+                <Image source={imgSource} style={styles.image} />
             </View>
 
-            {/* Other Details */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>รายละเอียด</Text>
+            {/* Details Section */}
+            <View style={styles.detailContainer}>
+            <Text style={styles.title}>{nameshop} {gate}</Text>
                 <View style={styles.infoRow}>
-                    <Text>วัน</Text>
+                    <Text style={styles.icon}>📦</Text>
+                    <Text>ตำแหน่งงาน: {position}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>เวลา</Text>
+                    <Text style={styles.icon}>💵</Text>
+                    <Text>ค่าจ้าง: {textSource}</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>ขอบเขตการทำงาน</Text>
+                    <Text style={styles.icon}>💼</Text>
+                    <Text>รวม: {sum} บาท</Text>
                 </View>
+            </View>
+            <View style={styles.detailsSection2}>
+                <Text style={styles.title}>รายละเอียด</Text>
+                <Text>จำนวนคน: {person} คน</Text>
+                <Text>เวลา: {time} น.</Text>
+                <Text>งานที่มอบหมาย: {textdetail}</Text>
+
             </View>
 
             {/* Map Section */}
-            <MapView
-                style={styles.map}
-                initialRegion={{
-                    latitude: 14.8802,  // Latitude and longitude of the location
-                    longitude: 102.0154,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                }}
-            >
-                <Marker
-                    coordinate={{ latitude: 14.8802, longitude: 102.0154 }}  // Marker position
-                    title="ร้านอะเเดพแมน สาขา มทส."
-                />
-            </MapView>
-
-            {/* Additional Information */}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>ข้อมูลเพิ่มเติม</Text>
-                <Text>สวัสดิการ: เข้างานไม่เกิน 22.00 คืนวันที่ 3 สิงหาคม</Text>
-                <Text>รายละเอียดบลาๆๆ</Text>
+            <View style={styles.mapContainer}>
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: 14.8811,
+                        longitude: 102.0155,
+                        latitudeDelta: 0.005,
+                        longitudeDelta: 0.005,
+                    }}
+                >
+                    <Marker
+                        coordinate={{ latitude: 14.8811, longitude: 102.0155 }}
+                        title="Suranaree University of Technology"
+                    />
+                </MapView>
             </View>
-
-            {/* Success Animation */}
-            {animationVisible && (
-                <Animated.View style={[styles.successOverlay, { opacity: fadeAnim }]}>
-                <View style={styles.successContainer}>
-                    {/* Success Image */}
-                    <Image source={require('./img2/accept.png')} style={styles.successImage} />
-                    {/* Success Text */}
-                    <Text style={styles.successText}>การสมัครสำเร็จ!</Text>
-                </View>
-            </Animated.View>
-            )}
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
     },
-    shopImage: {
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    image: {
         width: '100%',
         height: 250,
-        resizeMode: 'cover',
+        borderRadius: 5,
+    },
+    detailsSection: {
+        padding: 20,
+        backgroundColor: '#FDD2D2',
+        borderRadius: 10,
+        marginHorizontal: 15,
+        marginVertical: 10,
     },
     detailContainer: {
         padding: 20,
@@ -149,73 +89,28 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         margin: 10,
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    applyButton: {
-        backgroundColor: '#FFC0CB',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-    },
-    applyButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    infoContainer: {
-        marginTop: 10,
-    },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    icon: {
-        marginRight: 10,
-    },
-    section: {
+    detailsSection2: {
         padding: 20,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    map: {
-        width: '100%',
-        height: 300,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        marginHorizontal: 15,
         marginVertical: 10,
     },
-    successOverlay: {
-        position: 'absolute',
-        top: '30%',
-        left: '10%',
-        right: '10%',
-        backgroundColor: '#6ce600',
-        padding: 20,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    successText: {
-        color: 'white',
+    title: {
         fontSize: 18,
         fontWeight: 'bold',
-        textAlign: 'center',
+        marginBottom: 10,
     },
-    successImage: {
-        height: 25,
-        width: 25,
+    mapContainer: {
+        height: 200,
+        marginHorizontal: 15,
+        borderRadius: 10,
+        overflow: 'hidden',
+        marginVertical: 10,
     },
-    successContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+    map: {
+        flex: 1,
     },
 });
+
+export default DetailScreen;
