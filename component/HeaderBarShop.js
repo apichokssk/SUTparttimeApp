@@ -44,16 +44,11 @@ const HeaderBarShop = () => {
     <View style={styles.container}>
       {/* โลโก้หรือชื่อด้านซ้าย */}
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        <Image source={require('./img/SUT.png')} />
+      <Image source={require('./img/newlogo.png')} style={{height:60,width:150}}/>
       </View>
 
       {/* ปุ่มค้นหา */}
       <View style={{ flex: 0.13 }}>
-        <View style={styles.searchContainer}>
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Ionicons name="search" size={30} color="#fff" />
-          </View>
-        </View>
       </View>
 
       {/* เว้นระยะห่าง */}

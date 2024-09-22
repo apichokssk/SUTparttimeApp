@@ -1,9 +1,53 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 const DetailScreen = ({ route }) => {
-    const { imgSource, textSource, time, gate, person, nameshop, position, sum, textdetail } = route.params;
+    const { imgSource, textSource, time, gate, person, nameshop, position, sum, textdetail, latitude, longitude } = route.params;
+
+    const [showConfirmation, setShowConfirmation] = useState(false); // State to control the confirmation text
+    const [isPendingApproval, setIsPendingApproval] = useState(false); // State to control button status
+    const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity for animation
+
+    const handleApplyJob = () => {
+        Alert.alert(
+            "ยืนยันการสมัคร",
+            "คุณต้องการสมัครงานนี้หรือไม่?",
+            [
+                {
+                    text: "ยกเลิก",
+                    onPress: () => console.log("การสมัครถูกยกเลิก"),
+                    style: "cancel"
+                },
+                {
+                    text: "ยืนยัน",
+                    onPress: () => {
+                        setIsPendingApproval(true); // Set the button to pending status
+                        setShowConfirmation(true);
+                        // Animation to fade in the confirmation text
+                        Animated.timing(fadeAnim, {
+                            toValue: 1,
+                            duration: 500,
+                            useNativeDriver: true
+                        }).start();
+
+                        // Hide the confirmation text after 1.5 seconds
+                        setTimeout(() => {
+                            Animated.timing(fadeAnim, {
+                                toValue: 0,
+                                duration: 500,
+                                useNativeDriver: true
+                            }).start(() => setShowConfirmation(false));
+                        }, 1500);
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleCancelJob = () => {
+        setIsPendingApproval(false); // Revert back to 'สมัครงาน'
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -14,26 +58,54 @@ const DetailScreen = ({ route }) => {
 
             {/* Details Section */}
             <View style={styles.detailContainer}>
-            <Text style={styles.title}>{nameshop} {gate}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+                    <Text style={styles.title}>{nameshop} {gate}</Text>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            style={[styles.applyButton, isPendingApproval && styles.pendingButton]} // Change button style
+                            onPress={handleApplyJob}
+                            disabled={isPendingApproval} // Disable the button if pending
+                        >
+                            <Text style={styles.applyButtonText}>
+                                {isPendingApproval ? 'รออนุมัติ' : 'สมัครงาน'} {/* Change button text */}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* ปุ่มยกเลิก (แสดงเมื่อสถานะเป็นรออนุมัติ) */}
+                        {isPendingApproval && (
+                            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelJob}>
+                                <Text style={styles.cancelButtonText}>ยกเลิก</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
+
                 <View style={styles.infoRow}>
                     <Text style={styles.icon}>📦</Text>
-                    <Text>ตำแหน่งงาน: {position}</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>ตำแหน่งงาน: {position}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <Text style={styles.icon}>💵</Text>
-                    <Text>ค่าจ้าง: {textSource}</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>ค่าจ้าง: {textSource}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <Text style={styles.icon}>💼</Text>
-                    <Text>รวม: {sum} บาท</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>รวม: {sum} บาท</Text>
                 </View>
             </View>
-            <View style={styles.detailsSection2}>
-                <Text style={styles.title}>รายละเอียด</Text>
-                <Text>จำนวนคน: {person} คน</Text>
-                <Text>เวลา: {time} น.</Text>
-                <Text>งานที่มอบหมาย: {textdetail}</Text>
 
+            {/* Confirmation Message */}
+            {showConfirmation && (
+                <Animated.View style={[styles.confirmationBox, { opacity: fadeAnim }]}>
+                    <Text style={styles.confirmationText}>คุณสมัครงานเรียบร้อยแล้ว</Text>
+                </Animated.View>
+            )}
+
+            <View style={styles.detailsSection2}>
+                <Text style={styles.title2}>รายละเอียด</Text>
+                <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>จำนวนคน: {person} คน</Text>
+                <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>เวลา: {time} น.</Text>
+                <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>งานที่มอบหมาย: {textdetail}</Text>
             </View>
 
             {/* Map Section */}
@@ -41,18 +113,19 @@ const DetailScreen = ({ route }) => {
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        latitude: 14.8811,
-                        longitude: 102.0155,
+                        latitude: latitude || 14.8811,
+                        longitude: longitude || 102.0155,
                         latitudeDelta: 0.005,
                         longitudeDelta: 0.005,
                     }}
                 >
                     <Marker
-                        coordinate={{ latitude: 14.8811, longitude: 102.0155 }}
-                        title="Suranaree University of Technology"
+                        coordinate={{ latitude: latitude || 14.8811, longitude: longitude || 102.0155 }}
+                        title={nameshop}
                     />
                 </MapView>
             </View>
+
         </ScrollView>
     );
 };
@@ -97,9 +170,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
         marginBottom: 10,
+        fontFamily: 'SUT_Bold',
+        fontSize: 30,
+    },
+    title2: {
+        marginBottom: 10,
+        fontFamily: 'SUT_Bold',
+        fontSize: 24,
     },
     mapContainer: {
         height: 200,
@@ -110,6 +188,48 @@ const styles = StyleSheet.create({
     },
     map: {
         flex: 1,
+    },
+    buttonContainer: {
+        flexDirection: 'row', // จัดปุ่มให้อยู่ในแนวนอน
+        alignItems: 'center', // จัดให้อยู่ตรงกลางแนวตั้ง
+    },
+    applyButton: {
+        backgroundColor: '#F18180', // สีของปุ่มสำหรับสมัครงาน
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        marginRight: 10, // เพิ่มระยะห่างระหว่างปุ่มสมัครงานกับปุ่มยกเลิก
+    },
+    pendingButton: {
+        backgroundColor: '#FFA500', // สีส้มสำหรับสถานะรออนุมัติ
+    },
+    applyButtonText: {
+        fontFamily: 'SUT_Bold',
+        color: '#fff',
+        fontSize: 20,
+    },
+    cancelButton: {
+        backgroundColor: '#ff5c5c', // สีแดงสำหรับปุ่มยกเลิก
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        borderRadius: 20,
+    },
+    cancelButtonText: {
+        fontFamily: 'SUT_Bold',
+        color: '#fff',
+        fontSize: 18,
+    },
+    confirmationBox: {
+        backgroundColor: '#D4EDDA',
+        padding: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        margin: 20,
+    },
+    confirmationText: {
+        fontFamily: 'SUT_Bold',
+        color: '#155724',
+        fontSize: 18,
     },
 });
 

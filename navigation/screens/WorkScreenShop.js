@@ -23,11 +23,11 @@ export default function WorkScreenShop({ navigation }) {
 
             const q = query(collection(db, 'blog'), where('userId', '==', user.uid));
             const querySnapshot = await getDocs(q);
-            
+
             const fetchedPosts = [];
             for (const docSnapshot of querySnapshot.docs) {
                 const postData = docSnapshot.data();
-                
+
                 // ตรวจสอบว่ามี userId ก่อนที่จะดึงข้อมูล
                 if (postData.userId) {
                     const userDocRef = doc(db, 'users', postData.userId);  // Fetch user details
@@ -67,24 +67,24 @@ export default function WorkScreenShop({ navigation }) {
         <View style={styles.mainContainer}>
             {/* Add HeaderBar */}
             <HeaderBarShop />
-            
+
             {/* Content */}
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.title}>Your Posts</Text>
+                <Text style={styles.title}>โพสต์ของคุณ</Text>
 
                 {posts.length === 0 ? (
                     <Text style={styles.noPostsText}>You have not posted anything yet.</Text>
                 ) : (
                     posts.map((post) => (
-                        <TouchableOpacity 
-                            key={post.id} 
+                        <TouchableOpacity
+                            key={post.id}
                             style={styles.postContainer}
                             onPress={() => navigation.navigate('DetailScreenShop', { post })}
                         >
                             {/* Image */}
-                            <Image 
-                                source={{ uri: post.profileShop ? post.profileShop : 'https://example.com/placeholder.png' }} 
-                                style={styles.postImage} 
+                            <Image
+                                source={{ uri: post.profileShop ? post.profileShop : 'https://example.com/placeholder.png' }}
+                                style={styles.postImage}
                             />
 
                             {/* Post Information */}
@@ -98,13 +98,20 @@ export default function WorkScreenShop({ navigation }) {
 
                                 {/* Buttons */}
                                 <View style={styles.buttonRow}>
-                                    <TouchableOpacity style={styles.button}>
+                                    <TouchableOpacity
+                                        style={styles.button}
+                                        onPress={() => navigation.navigate('ApplicantScreen')}  // Navigate to ApplicantScreen
+                                    >
                                         <Text style={styles.buttonText}>รายชื่อผู้สมัคร</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.button}>
+                                    <TouchableOpacity
+                                        style={styles.button}
+                                        onPress={() => navigation.navigate('EmployeeScreen')}  // Navigate to EmployeeScreen
+                                    >
                                         <Text style={styles.buttonText}>ลูกจ้าง</Text>
                                     </TouchableOpacity>
                                 </View>
+
                             </View>
                         </TouchableOpacity>
                     ))
@@ -144,8 +151,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     postTitle: {
-        fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
         marginBottom: 5,
     },
     postTime: {
@@ -154,13 +161,14 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     postText: {
-        fontSize: 16,
         color: '#555',
         marginLeft: 5,
+        fontSize: 20,
+        fontFamily: 'SUT_Bold',
     },
     postImage: {
-        width: 80,
-        height: 80,
+        width: 120,
+        height: 100,
         borderRadius: 10,
     },
     buttonRow: {
@@ -172,17 +180,18 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 20,
         paddingVertical: 5,
-        marginRight: 10,
+        marginRight: 1,
         borderWidth: 1,
         borderColor: '#ddd',
     },
     buttonText: {
-        fontSize: 14,
+        fontSize: 16,
+        fontFamily: 'SUT_Bold',
         color: '#555',
     },
     title: {
-        fontWeight: 'bold',
-        fontSize: 20,
+        fontSize: 30,
+        fontFamily: 'SUT_Bold',
         marginTop: 20,
     },
     noPostsText: {

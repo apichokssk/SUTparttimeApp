@@ -84,15 +84,15 @@ export default function DetailScreenShop({ route }) {
                 <View style={styles.infoContainer}>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>📦</Text>
-                        <Text>ตำแหน่งงาน: {post.position}</Text>
+                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>ตำแหน่งงาน: {post.position}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💵</Text>
-                        <Text>ค่าจ้าง: {post.perhrs} / ชั่วโมง</Text>
+                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>ค่าจ้าง: {post.perhrs} / ชั่วโมง</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💼</Text>
-                        <Text>รวม: {post.sum} บาท</Text>
+                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>รวม: {post.sum} บาท</Text>
                     </View>
                 </View>
             </View>
@@ -101,13 +101,13 @@ export default function DetailScreenShop({ route }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>รายละเอียด</Text>
                 <View style={styles.infoRow}>
-                    <Text>จำนวนคน: {post.person} คน</Text>
+                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>จำนวนคน: {post.person} คน</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>เวลาเข้างาน: {post.time} น.</Text>
+                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>เวลาเข้างาน: {post.time} น.</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text>งานที่มอบหมาย: {post.textdetail}</Text>
+                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>งานที่มอบหมาย: {post.textdetail}</Text>
                 </View>
             </View>
 
@@ -159,8 +159,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 30,
+        fontFamily: 'SUT_Bold',
     },
     editButton: {
         backgroundColor: '#FFC0CB',
@@ -170,7 +170,8 @@ const styles = StyleSheet.create({
     },
     editButtonText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontFamily: 'SUT_Bold',
+        fontSize:20,
     },
     infoContainer: {
         marginTop: 10,
@@ -187,8 +188,8 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 24,
+        fontFamily: 'SUT_Bold',
         marginBottom: 10,
     },
     map: {

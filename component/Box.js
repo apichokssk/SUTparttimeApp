@@ -4,11 +4,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { doc, getDoc, sum } from 'firebase/firestore';
 import { db } from '../firebase'; // แน่ใจว่า path Firebase setup ถูกต้อง
 
-export default function Box({ imgSource, textSource, time, gate, person, navigation, userId, position, postId,textdetail,sum }) {
+export default function Box({ imgSource, textSource, time, gate, person, navigation, userId, position, postId, textdetail, sum, latitude, longitude }) {
     const [nameshop, setNameshop] = useState('Unknown Shop'); // Default to 'Unknown Shop'
     const [userData, setUserData] = useState(null); // ใช้เก็บข้อมูลผู้ใช้ทั้งหมด
 
-    // ดึงชื่อร้านจาก collection 'users' ตาม userId
     useEffect(() => {
         const fetchNameshop = async () => {
             if (!userId) return;
@@ -34,16 +33,18 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
     return (
         <TouchableOpacity
             onPress={() => navigation.navigate('DetailScreen', {
-                imgSource, // ส่งข้อมูลรูปภาพ
-                textSource, // ส่งข้อมูลค่าจ้างต่อชั่วโมง
-                time, // ส่งข้อมูลเวลาเข้างาน
-                gate, // ส่งข้อมูลประตู
-                person, // ส่งจำนวนวันทำงาน
-                nameshop, // ส่งชื่อร้าน
-                position, // ส่งตำแหน่งงาน
-                postId, // ส่ง postId เพื่อดึงข้อมูลโพสต์เพิ่มเติม
-                textdetail, // Ensure this is passed correctly
+                imgSource,
+                textSource,
+                time,
+                gate, 
+                person, 
+                nameshop, 
+                position, 
+                postId, 
+                textdetail, 
                 sum,
+                latitude: latitude || 14.8811, 
+                longitude: longitude || 102.0155, 
             })}
 
         >
@@ -59,7 +60,7 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
                     <View style={styles.infoContainer}>
                         <Ionicons name="time-outline" size={16} color="#fff" />
                         <Text style={styles.infoText}>
-                            {time} | ทำ {person} วัน
+                            {time} | จำนวน {person} คน
                         </Text>
                     </View>
 
@@ -75,10 +76,11 @@ export default function Box({ imgSource, textSource, time, gate, person, navigat
     );
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        backgroundColor: '#F18180',  // สีพื้นหลังชมพู
+        backgroundColor: '#F18180', 
         borderRadius: 20,
         height: 120,
         width: '95%',
@@ -87,9 +89,10 @@ const styles = StyleSheet.create({
         margin: 10,
         padding: 10,
         elevation: 5,
+        fontFamily: 'SUT_Regular',
     },
     image: {
-        width: 100,
+        width: 150,
         height: 100,
         borderRadius: 10,
     },
@@ -97,21 +100,24 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingLeft: 10,
         justifyContent: 'center',
+        fontFamily: 'SUT_Regular',
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
         color: '#fff',
     },
     infoContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 5,
+        marginVertical: -5,
+        fontFamily: 'SUT_Regular',
     },
     infoText: {
         color: '#fff',
         marginLeft: 5,
-        fontSize: 14,
+        fontSize: 20,
+        fontFamily: 'SUT_Regular',
     },
     priceContainer: {
         marginTop: 10,
@@ -119,10 +125,11 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 5,
         paddingHorizontal: 15,
+        fontFamily: 'SUT_Regular',
     },
     priceText: {
         color: '#F18180',
-        fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: 23,
+        fontFamily: 'SUT_Bold',
     },
 });

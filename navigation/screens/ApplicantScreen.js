@@ -1,16 +1,14 @@
 import * as React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
-import HeaderBar from '../../component/HeaderBar';  // นำเข้า HeaderBar
+import HeaderBarShop from '../../component/HeaderBarShop';  // นำเข้า HeaderBar
 
-export default function MessageScreen({ navigation }) {
+export default function ApplicantScreen({ navigation }) {
     return (
         <View style={styles.mainContainer}>
-            {/* เพิ่ม HeaderBar */}
-            <HeaderBar />
-            
-            {/* ส่วนเนื้อหาของหน้า */}
+            <HeaderBarShop navigation={navigation} />
+
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.text}>ข้อความ</Text>
+                <Text style={styles.text}>รายชื่อผู้สมัคร</Text>
             </ScrollView>
         </View>
     );

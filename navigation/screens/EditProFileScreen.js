@@ -270,23 +270,26 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 25,
+    fontFamily: 'SUT_Regular',
   },
   form: {
     width: '100%',
     marginBottom: 30,
   },
   label: {
-    fontSize: 16,
+    fontSize: 25,
+    fontFamily: 'SUT_Regular',
     color: '#ff5252',
     marginBottom: 5,
   },
   input: {
+    fontFamily: 'SUT_Regular',
     backgroundColor: '#e0e0e0',
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
-    fontSize: 16,
+    fontSize: 25,
     color: '#000',
   },
   buttonContainer: {
@@ -304,7 +307,8 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: '#ff5252',
-    fontSize: 16,
+    fontSize: 25,
+    fontFamily: 'SUT_Regular',
   },
   saveButton: {
     backgroundColor: '#ff8a80',
@@ -314,7 +318,8 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 25,
+    fontFamily: 'SUT_Regular',
   },
 });
 

@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeShopStack from './HomeShopStack'; // HomeShopStack including HomeScreenShop
 import WorkShopScreen from './WorkScreenShop'; // Ensure correct path
-import MessageShopScreen from './MessageScreenShop'; // Ensure correct path
 
 const Tab = createBottomTabNavigator();
 
@@ -16,7 +15,8 @@ export default function ShopMainContainer() {
                 component={HomeShopStack}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Home</Text>
+                        <Text style={{ color: focused ? '#F44948' : 'gray' ,fontSize: 18,
+                            fontFamily: 'SUT_Bold',}}>Home</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
@@ -32,27 +32,12 @@ export default function ShopMainContainer() {
                 component={WorkShopScreen}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Work</Text>
+                        <Text style={{ color: focused ? '#F44948' : 'gray' ,fontSize: 18,
+                            fontFamily: 'SUT_Bold',}}>Work</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
                             name="newspaper-outline"
-                            color={focused ? '#F44948' : color}
-                            size={size}
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="MessageShop"
-                component={MessageShopScreen}
-                options={{
-                    tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? '#F44948' : 'gray' }}>Message</Text>
-                    ),
-                    tabBarIcon: ({ color, size, focused }) => (
-                        <Ionicons
-                            name="chatbox-ellipses-outline"
                             color={focused ? '#F44948' : color}
                             size={size}
                         />

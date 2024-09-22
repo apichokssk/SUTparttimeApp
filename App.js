@@ -1,81 +1,82 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import * as Font from 'expo-font'; // Import the expo-font module
+import * as FileSystem from 'expo-file-system';
+import AppLoading from 'expo-app-loading'; // Import AppLoading component
 import { StatusBar } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Login from './navigation/screens/Login';  // Login Screen
-import MainContainer from './navigation/screens/MainContainer'; // Main Container for Students
-import ShopMainContainer from './navigation/screens/ShopMainContainer'; // Main Container for Shops
-import PostScreen from './navigation/screens/PostScreen'; // PostScreen
-import DetailScreenShop from './navigation/screens/DetailScreenShop'; // Detail Screen for Shops
-import EditProfileScreenShop from './navigation/screens/EditProFileScreenShop'; // Edit Profile for Shops
-import ProfileScreenShop from './navigation/screens/ProfileScreenShop'; // Profile Screen for Shops
-import HomeScreenShop from './navigation/screens/HomeScreenShop'; // HomeScreen for Shops
+import theme from './theme'; // Import custom theme
+import Login from './navigation/screens/Login';
+import MainContainer from './navigation/screens/MainContainer';
+import ShopMainContainer from './navigation/screens/ShopMainContainer';
+import PostScreen from './navigation/screens/PostScreen';
+import DetailScreenShop from './navigation/screens/DetailScreenShop';
+import EditProfileScreenShop from './navigation/screens/EditProFileScreenShop';
+import ProfileScreenShop from './navigation/screens/ProfileScreenShop';
+import HomeScreenShop from './navigation/screens/HomeScreenShop';
 import WorkScreenShop from './navigation/screens/WorkScreenShop';
-import EditPostScreen from './navigation/screens/EditPostScreen'; // Add Edit Post Screen
+import EditPostScreen from './navigation/screens/EditPostScreen';
+import DetailScreen from './navigation/screens/DetailScreen';
+import ForgotScreen from './navigation/screens/ForgotScreen';
+import ApplicantScreen from './navigation/screens/ApplicantScreen';
+import EmployeeScreen from './navigation/screens/EmployeeScreen';
 
 const Stack = createStackNavigator();
 
+const fetchFonts = async () => {
+  console.log(await FileSystem.readDirectoryAsync(FileSystem.documentDirectory));
+  return Font.loadAsync({
+    'SUT_Bold': require('./assets/fonts/SUT_Bold.ttf'),
+    'SUT_Regular': require('./assets/fonts/SUT_Regular.ttf'),
+    'SUT_Light': require('./assets/fonts/SUT_Light.ttf'),
+  });
+};
+
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  if (!fontsLoaded) {
+    return (
+      <AppLoading
+        startAsync={fetchFonts}
+        onFinish={() => setFontsLoaded(true)}
+        onError={(err) => console.log(err)}
+      />
+    );
+  }
+
+  const MyTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      text: theme.colors.text,
+    },
+  };
+
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="dark-content" />
-
+    <NavigationContainer theme={MyTheme}>
+      <StatusBar barStyle="white-content" />
       <Stack.Navigator initialRouteName="Login">
-        {/* Login Screen */}
-        <Stack.Screen 
-          name="Login" 
-          component={Login} 
-          options={{ headerShown: false }} 
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
         />
-
-        {/* Shop Navigation */}
-        <Stack.Screen 
-          name="HomeScreenShop" 
-          component={HomeScreenShop}  
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
-          name="ProfileScreenShop" 
-          component={ProfileScreenShop} 
-        />
-        <Stack.Screen 
-          name="EditProfileScreenShop" 
-          component={EditProfileScreenShop} 
-        />
-        <Stack.Screen 
-          name="DetailScreenShop" 
-          component={DetailScreenShop} 
-        />
-        <Stack.Screen 
-          name="PostScreen" 
-          component={PostScreen} 
-          options={{ headerShown: true, title: 'Create Post' }} // Show header with title
-        />
-        <Stack.Screen 
-          name="EditPostScreen" 
-          component={EditPostScreen}  // Add this screen to handle post editing
-          options={{ headerShown: true, title: 'Edit Post' }}  // Show header with title
-        />
-
-        {/* Student Navigation */}
-        <Stack.Screen 
-          name="MainContainer" 
-          component={MainContainer} 
-          options={{ headerShown: false }} 
-        />
-
-        {/* Shop Main Container */}
-        <Stack.Screen 
-          name="ShopMainContainer" 
-          component={ShopMainContainer} 
-          options={{ headerShown: false }} 
-        />
-
-        {/* Work Screen for Shops */}
-        <Stack.Screen 
-          name="WorkScreenShop" 
-          component={WorkScreenShop} 
-        />
+        <Stack.Screen name="ForgotScreen" component={ForgotScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="HomeScreenShop" component={HomeScreenShop} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfileScreenShop" component={ProfileScreenShop} />
+        <Stack.Screen name="EditProfileScreenShop" component={EditProfileScreenShop} />
+        <Stack.Screen name="DetailScreenShop" component={DetailScreenShop} />
+        <Stack.Screen name="DetailScreen" component={DetailScreen} />
+        <Stack.Screen name="PostScreen" component={PostScreen} options={{ headerShown: true, title: 'Create Post' }} />
+        <Stack.Screen name="EditPostScreen" component={EditPostScreen} options={{ headerShown: true, title: 'Edit Post' }} />
+        <Stack.Screen name="MainContainer" component={MainContainer} options={{ headerShown: false }} />
+        <Stack.Screen name="ShopMainContainer" component={ShopMainContainer} options={{ headerShown: false }} />
+        <Stack.Screen name="WorkScreenShop" component={WorkScreenShop} />
+        <Stack.Screen name="ApplicantScreen" component={ApplicantScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="EmployeeScreen" component={EmployeeScreen} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

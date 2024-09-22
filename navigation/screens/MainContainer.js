@@ -45,7 +45,8 @@ export default function MainContainer() {
                 component={HomeStack}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Home</Text>
+                        <Text style={{ color: focused ? 'tomato' : 'gray' ,fontSize: 18,
+                            fontFamily: 'SUT_Bold',}}>Home</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
@@ -61,7 +62,8 @@ export default function MainContainer() {
                 component={WorkScreen}
                 options={{
                     tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Work</Text>
+                        <Text style={{ color: focused ? 'tomato' : 'gray' ,fontSize: 18,
+                            fontFamily: 'SUT_Bold',}}>Work</Text>
                     ),
                     tabBarIcon: ({ color, size, focused }) => (
                         <Ionicons
@@ -72,22 +74,7 @@ export default function MainContainer() {
                     ),
                 }}
             />
-            <Tab.Screen
-                name={messageName}
-                component={MessageScreen}
-                options={{
-                    tabBarLabel: ({ focused }) => (
-                        <Text style={{ color: focused ? 'tomato' : 'gray' }}>Message</Text>
-                    ),
-                    tabBarIcon: ({ color, size, focused }) => (
-                        <Ionicons
-                            name="chatbox-ellipses-outline"
-                            color={focused ? 'tomato' : color}
-                            size={size}
-                        />
-                    ),
-                }}
-            />
+            
         </Tab.Navigator>
     );
 }

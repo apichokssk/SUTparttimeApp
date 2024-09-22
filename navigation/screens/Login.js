@@ -74,7 +74,7 @@ export default function LoginSignUp({ navigation }) {
         <View style={styles.container}>
             {/* Logo */}
             <View style={styles.logoTopContainer}>
-                <Image source={require('./img2/SUT.png')} style={styles.logoTop} />
+                <Image source={require('./img2/newlogo.png')} style={styles.logoTop} />
             </View>
 
             {/* Form container */}
@@ -211,8 +211,8 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 40,
     },
     logoTop: {
-        width: 200,
-        height: 120,
+        width: 320,
+        height: 150,
     },
     formContainer: {
         width: '90%',
@@ -242,13 +242,13 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     tabText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
         color: '#fff',
     },
     tabTextInactive: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
         color: '#aaa',
     },
     input: {
@@ -277,6 +277,8 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         marginBottom: 20,
         color: '#F44948',
+        fontSize: 20,
+        fontFamily: 'SUT_Bold',
     },
     loginButton: {
         backgroundColor: '#F44948',
@@ -288,14 +290,18 @@ const styles = StyleSheet.create({
     },
     loginButtonText: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
     },
     decorImage: {
         width: '90%',
         height: 320,
         resizeMode: 'contain',
         marginTop: -50,
+    },
+    userTypeText: {
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
     },
     userTypeContainer: {
         flexDirection: 'row',
@@ -311,10 +317,12 @@ const styles = StyleSheet.create({
     },
     activeUserTypeButton: {
         backgroundColor: '#F44948',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
     },
     userTypeText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontFamily: 'SUT_Bold',
         color: '#aaa',
     },
     activeUserTypeText: {

@@ -32,7 +32,7 @@ const ForgotScreen = () => {
       {/* Top Red Background with Logo */}
       <View style={styles.redBackground}>
         <Image
-          source={require('./img2/SUT.png')} // Replace with your logo file
+          source={require('./img2/newlogo.png')} // Replace with your logo file
           style={styles.logo}
         />
       </View>
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 50,
   },
   logo: {
-    width: 200,
-    height: 120,
+    width: 310,
+    height: 150,
     marginBottom: 10,
   },
   card: {

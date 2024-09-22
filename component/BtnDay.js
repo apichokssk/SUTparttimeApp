@@ -1,32 +1,41 @@
 import * as React from 'react';
-import { Text, View, Image, StyleSheet } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function BtnDay(props) {
+export default function BtnDay({ filterPostsByGate }) {
     return (
         <View style={styles.container}>
             {/* ปุ่มเวลาเช้า */}
-            <View style={styles.button}>
+            <TouchableOpacity style={styles.gate1} onPress={() => filterPostsByGate('ประตู 1')}>
                 <Image 
-                    source={require('./img/sun.png')}  // ไอคอนพระอาทิตย์
+                    source={require('./img/gate1.png')}  
                     style={styles.icon}
                 />
                 <View>
-                    <Text style={styles.timeTextDay}>กลางวัน</Text>
-                    <Text style={styles.timeRangeText}>01:00-12:00</Text>
+                    <Text style={{ fontFamily: 'SUT_Bold', fontSize: 18 }}>ประตู 1</Text>
                 </View>
-            </View>
+            </TouchableOpacity>
 
             {/* ปุ่มเวลาค่ำ */}
-            <View style={styles.button}>
+            <TouchableOpacity style={styles.gate4} onPress={() => filterPostsByGate('ประตู 4')}>
                 <Image 
-                    source={require('./img/moon.png')}  // ไอคอนพระจันทร์
+                    source={require('./img/gate4.png')}  
                     style={styles.icon}
                 />
                 <View>
-                    <Text style={styles.timeTextNight}>กลางคืน</Text>
-                    <Text style={styles.timeRangeText}>13:00-00:00</Text>
+                    <Text style={{ fontFamily: 'SUT_Bold', fontSize: 18 }}>ประตู 4</Text>
                 </View>
-            </View>
+            </TouchableOpacity>
+
+            {/* ปุ่มทั้งหมด */}
+            <TouchableOpacity style={styles.allGate} onPress={() => filterPostsByGate('ทั้งหมด')}>
+                <Image 
+                    source={require('./img/AllGate.png')}
+                    style={styles.icon}
+                />
+                <View>
+                    <Text style={{ fontFamily: 'SUT_Bold', fontSize: 16 }}>ทั้งหมด</Text>
+                </View>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -36,36 +45,35 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
-    },
-    button: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',  // สีพื้นหลังตามตัวอย่าง
-        borderRadius: 20,
-        padding: 15,
-        width: '48%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 5,
-        
+        padding: 20,
     },
     icon: {
         width: 40,
         height: 40,
-        marginRight: 10,
         resizeMode: 'contain',
     },
-    timeTextDay: {
-        fontSize: 16,
-        color: '#F9A825',  // สีของข้อความ "กลางวัน"
+    gate1: {
+        flex: 2,
+        borderRadius: 15,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        marginHorizontal: 8,
+        elevation: 5,
     },
-    timeTextNight: {
-        fontSize: 16,
-        color: '#BDBDBD',  // สีของข้อความ "กลางคืน"
+    gate4: {
+        flex: 2,
+        borderRadius: 15,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        elevation: 5,
+        marginHorizontal: 8,
     },
-    timeRangeText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#000',
+    allGate: {
+        flex: 2,
+        borderRadius: 15,
+        alignItems: 'center',
+        backgroundColor: 'white',
+        marginHorizontal: 8,
+        elevation: 5, 
     },
 });

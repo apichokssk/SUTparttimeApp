@@ -11,7 +11,7 @@ export default function WorkScreen({ navigation }) {
             
             {/* ส่วนเนื้อหาของหน้าจอ */}
             <ScrollView contentContainerStyle={styles.container}>
-                <Text style={{ fontWeight: 'bold', fontSize: 20 ,marginTop: 20,}}>
+                <Text style={{ fontFamily: 'SUT_Bold', fontSize: 30 ,marginTop: 20,}}>
                     งานของคุณ
                 </Text>
 

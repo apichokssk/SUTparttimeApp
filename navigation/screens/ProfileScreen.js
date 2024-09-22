@@ -137,27 +137,32 @@ const styles = StyleSheet.create({
   profileID: {
     fontSize: 16,
     color: '#fff',
+    fontFamily: 'SUT_Regular',
   },
   userName:{
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontFamily: 'SUT_Bold',
     color: '#fff',
   },
   profileName: {
-    fontSize: 18,
+    fontSize: 25,
     color: '#fff',
+    fontFamily: 'SUT_Regular',
   },
   profileLastName: {
-    fontSize: 18,
+    fontSize: 25,
     color: '#fff',
+    fontFamily: 'SUT_Regular',
   },
   profilePhone: {
-    fontSize: 16,
+    fontSize: 25,
     color: '#fff',
+    fontFamily: 'SUT_Regular',
   },
   profileEmail: {
-    fontSize: 16,
+    fontSize: 25,
     color: '#fff',
+    fontFamily: 'SUT_Regular',
   },
   editButton: {
     marginTop: 15,
@@ -168,7 +173,8 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 25,
+    fontFamily: 'SUT_Regular',
   },
   logoutButton: {
     marginTop: 50,
@@ -179,8 +185,8 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 25,
+    fontFamily: 'SUT_Bold',
   },
 });
 
