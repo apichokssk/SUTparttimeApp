@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { doc, onSnapshot } from 'firebase/firestore';  // Import Firestore functions for real-time updates
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
 import Ionicons from '@expo/vector-icons/Ionicons';
+
 const ProfileScreen = () => {
   const navigation = useNavigation();  // Use navigation to navigate to other screens
   const [profileData, setProfileData] = useState({});  // State to store profile data
@@ -96,6 +97,18 @@ const ProfileScreen = () => {
         </View>
       </View>
 
+      {/* Clickable "งานของฉัน" with Icon */}
+      <TouchableOpacity
+        style={styles.lineContainer}
+        onPress={() => navigation.navigate('YourWorkScreen')} // Navigate to "งานของฉัน" screen
+      >
+        <View style={styles.myWorkContainer}>
+          <Ionicons name="briefcase-outline" size={25} color="#0005" style={styles.myWorkIcon} />
+          <Text style={styles.myWorkText}>งานของฉัน</Text>
+        </View>
+        <View style={styles.horizontalLine} />
+      </TouchableOpacity>
+
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
@@ -140,27 +153,27 @@ const styles = StyleSheet.create({
     fontFamily: 'SUT_Regular',
   },
   userName:{
-    fontSize: 30,
+    fontSize: 25,
     fontFamily: 'SUT_Bold',
     color: '#fff',
   },
   profileName: {
-    fontSize: 25,
+    fontSize: 20,
     color: '#fff',
     fontFamily: 'SUT_Regular',
   },
   profileLastName: {
-    fontSize: 25,
+    fontSize: 20,
     color: '#fff',
     fontFamily: 'SUT_Regular',
   },
   profilePhone: {
-    fontSize: 25,
+    fontSize: 20,
     color: '#fff',
     fontFamily: 'SUT_Regular',
   },
   profileEmail: {
-    fontSize: 25,
+    fontSize: 20,
     color: '#fff',
     fontFamily: 'SUT_Regular',
   },
@@ -175,6 +188,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 25,
     fontFamily: 'SUT_Regular',
+  },
+  lineContainer: {
+    marginTop: 30,
+    width: '90%',
+    alignItems: 'center',
+  },
+  myWorkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5, // Slight margin for spacing
+  },
+  myWorkIcon: {
+    marginRight: 8,  // Space between icon and text
+  },
+  myWorkText: {
+    fontSize: 25,
+    fontFamily: 'SUT_Bold',
+    textAlign: 'center',
+    color:'#0005'
+  },
+  horizontalLine: {
+    height: 1,
+    backgroundColor: '#0005',
+    width: '80%',
+    marginTop: 5,
   },
   logoutButton: {
     marginTop: 50,

@@ -109,7 +109,7 @@ const ProfileScreenShop = () => {
         <View style={styles.profileDetails}>
           <Text style={styles.userName}>Hi: {profileData.username || 'N/A'}</Text>
           <Text style={styles.profilePhone}>ShopName: {profileData.nameshop || 'N/A'}</Text>
-          <Text style={styles.profilePhone}>phone: {profileData.phone || 'N/A'}</Text>
+          <Text style={styles.profilePhone}>phone: {profileData.shopPhone || 'N/A'}</Text>
           <Text style={styles.profileEmail}>email: {auth.currentUser ? auth.currentUser.email : 'N/A'}</Text>
           
 

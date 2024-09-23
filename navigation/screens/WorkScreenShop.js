@@ -10,7 +10,7 @@ export default function WorkScreenShop({ navigation }) {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch posts from Firestore
+    // Fetch posts from Firestore and also fetch nameshop from users
     const fetchPosts = async () => {
         setLoading(true);
         try {
@@ -21,22 +21,20 @@ export default function WorkScreenShop({ navigation }) {
                 return;
             }
 
+            // Query posts created by the logged-in user
             const q = query(collection(db, 'blog'), where('userId', '==', user.uid));
             const querySnapshot = await getDocs(q);
 
             const fetchedPosts = [];
             for (const docSnapshot of querySnapshot.docs) {
                 const postData = docSnapshot.data();
+                
+                // Fetch nameshop from the users collection
+                const userDoc = await getDoc(doc(db, 'users', postData.userId));
+                const nameshop = userDoc.exists() ? userDoc.data().nameshop : 'Unknown Shop';
 
-                // ตรวจสอบว่ามี userId ก่อนที่จะดึงข้อมูล
-                if (postData.userId) {
-                    const userDocRef = doc(db, 'users', postData.userId);  // Fetch user details
-                    const userDoc = await getDoc(userDocRef);
-                    const nameshop = userDoc.exists() ? userDoc.data().nameshop : 'Unknown Shop';
-                    fetchedPosts.push({ id: docSnapshot.id, ...postData, nameshop });
-                } else {
-                    fetchedPosts.push({ id: docSnapshot.id, ...postData, nameshop: 'Unknown Shop' });
-                }
+                // Add nameshop to post data
+                fetchedPosts.push({ id: docSnapshot.id, ...postData, nameshop });
             }
 
             setPosts(fetchedPosts);
@@ -66,7 +64,7 @@ export default function WorkScreenShop({ navigation }) {
     return (
         <View style={styles.mainContainer}>
             {/* Add HeaderBar */}
-            <HeaderBarShop />
+            <HeaderBarShop navigation={navigation} />
 
             {/* Content */}
             <ScrollView contentContainerStyle={styles.container}>
@@ -79,7 +77,6 @@ export default function WorkScreenShop({ navigation }) {
                         <TouchableOpacity
                             key={post.id}
                             style={styles.postContainer}
-                            onPress={() => navigation.navigate('DetailScreenShop', { post })}
                         >
                             {/* Image */}
                             <Image
@@ -91,27 +88,27 @@ export default function WorkScreenShop({ navigation }) {
                             <View style={styles.postDetails}>
                                 <Text style={styles.postTitle}>{post.nameshop} {post.gate}</Text>
                                 <View style={styles.postTime}>
-                                    <Ionicons name="time-outline" size={16} color="gray" />
-                                    <Text style={styles.postText}>{post.time || 'Unknown Time'}</Text>
-                                    <Text style={styles.postText}>| ทำ {post.person || 0} วัน</Text>
+                                    <Ionicons name="menu" size={16} color="gray" />
+                                    <Text style={styles.postText}>{post.position || 'Unknown Time'}</Text>
+                                    <Text style={styles.postText}>| รับ {post.person || 0} คน</Text>
                                 </View>
 
                                 {/* Buttons */}
                                 <View style={styles.buttonRow}>
                                     <TouchableOpacity
                                         style={styles.button}
-                                        onPress={() => navigation.navigate('ApplicantScreen')}  // Navigate to ApplicantScreen
+                                        onPress={() => navigation.navigate('ApplicantScreen', { postId: post.id })}  // Pass postId to ApplicantScreen
                                     >
                                         <Text style={styles.buttonText}>รายชื่อผู้สมัคร</Text>
                                     </TouchableOpacity>
+                                    {/* Add "ลูกจ้าง" button */}
                                     <TouchableOpacity
                                         style={styles.button}
-                                        onPress={() => navigation.navigate('EmployeeScreen')}  // Navigate to EmployeeScreen
+                                        onPress={() => navigation.navigate('EmployeeScreen', { postId: post.id })} // Pass postId to EmployeeScreen
                                     >
                                         <Text style={styles.buttonText}>ลูกจ้าง</Text>
                                     </TouchableOpacity>
                                 </View>
-
                             </View>
                         </TouchableOpacity>
                     ))
@@ -143,7 +140,7 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         marginVertical: 10,
-        width: '90%',
+        width: '95%',
         alignItems: 'center',
     },
     postDetails: {

@@ -20,6 +20,9 @@ import DetailScreen from './navigation/screens/DetailScreen';
 import ForgotScreen from './navigation/screens/ForgotScreen';
 import ApplicantScreen from './navigation/screens/ApplicantScreen';
 import EmployeeScreen from './navigation/screens/EmployeeScreen';
+import YourWorkScreen from './navigation/screens/YourWorkScreen';
+
+
 
 const Stack = createStackNavigator();
 
@@ -77,6 +80,7 @@ export default function App() {
         <Stack.Screen name="WorkScreenShop" component={WorkScreenShop} />
         <Stack.Screen name="ApplicantScreen" component={ApplicantScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="EmployeeScreen" component={EmployeeScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="YourWorkScreen" component={YourWorkScreen} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -7,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const EditProFileScreenShop = ({ navigation }) => {
-  const [phone, setPhone] = useState('');
+  const [shopPhone, setShopPhone] = useState('');
   const [shopName, setShopName] = useState('');
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
@@ -17,7 +17,6 @@ const EditProFileScreenShop = ({ navigation }) => {
 
   const user = auth.currentUser;
 
-  // Function to pick an image from the device's gallery
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -34,11 +33,10 @@ const EditProFileScreenShop = ({ navigation }) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-      setModalVisible(false); // Close the modal
+      setModalVisible(false);
     }
   };
 
-  // Function to take a photo using the device's camera
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
@@ -54,11 +52,10 @@ const EditProFileScreenShop = ({ navigation }) => {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
-      setModalVisible(false); // Close the modal
+      setModalVisible(false);
     }
   };
 
-  // Fetch the user profile data from Firestore
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
@@ -66,7 +63,7 @@ const EditProFileScreenShop = ({ navigation }) => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setPhone(userData.phone || '');
+            setShopPhone(userData.shopPhone || '');
             setShopName(userData.nameshop || '');
             setProfile(userData.profile || '');
           } else {
@@ -84,7 +81,7 @@ const EditProFileScreenShop = ({ navigation }) => {
     fetchUserProfile();
   }, [user]);
 
-  // Upload the selected image to Firebase Storage and return the download URL
+
   const uploadImageToStorage = async (uri) => {
     setUploading(true);
     try {
@@ -106,7 +103,7 @@ const EditProFileScreenShop = ({ navigation }) => {
   const handleSave = async () => {
     if (user) {
       try {
-        let profileImageUrl = profile; // Keep old image if no new one is uploaded
+        let profileImageUrl = profile;
         if (image) {
           profileImageUrl = await uploadImageToStorage(image);
         }
@@ -114,7 +111,7 @@ const EditProFileScreenShop = ({ navigation }) => {
         await setDoc(doc(db, 'users', user.uid), {
           profile: profileImageUrl,
           nameshop: shopName,
-          phone: phone,
+          shopPhone: shopPhone,
           email: user.email,
         }, { merge: true });
 
@@ -129,6 +126,7 @@ const EditProFileScreenShop = ({ navigation }) => {
     }
   };
 
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -140,7 +138,6 @@ const EditProFileScreenShop = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Touchable image to open modal */}
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         {image || profile ? (
           <Image
@@ -154,7 +151,6 @@ const EditProFileScreenShop = ({ navigation }) => {
 
       {uploading && <ActivityIndicator size="small" color="#ff5252" />}
 
-      {/* Modal for image options */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -176,7 +172,6 @@ const EditProFileScreenShop = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Form for editing profile */}
       <View style={styles.form}>
         <Text style={styles.label}>Shop Name:</Text>
         <TextInput
@@ -186,17 +181,16 @@ const EditProFileScreenShop = ({ navigation }) => {
           onChangeText={setShopName}
         />
 
-        <Text style={styles.label}>Phone:</Text>
+        <Text style={styles.label}>Shop Phone:</Text>
         <TextInput
           style={styles.input}
           placeholder="0XX-XXX-XXXX"
-          value={phone}
-          onChangeText={setPhone}
+          value={shopPhone}
+          onChangeText={setShopPhone}
           keyboardType="phone-pad"
         />
       </View>
 
-      {/* Cancel and Save buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
           <Text style={styles.cancelButtonText}>ยกเลิก</Text>

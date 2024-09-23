@@ -8,26 +8,29 @@ import { useNavigation } from '@react-navigation/native';  // Import navigation
 export default function DetailScreenShop({ route }) {
     const { post } = route.params;  // Get the passed post data
     const [shopName, setShopName] = useState('');  // State for storing the shop name
+    const [shopPhone, setShopPhone] = useState('');  // State for storing the shop phone number
     const navigation = useNavigation();  // Get navigation object
 
-    // Fetch the shop name from Firestore
+    // Fetch the shop name and phone from Firestore
     useEffect(() => {
-        const fetchShopName = async () => {
+        const fetchShopData = async () => {
             try {
                 const userRef = doc(db, 'users', post.userId);  // Reference to the user document
                 const userDoc = await getDoc(userRef);
 
                 if (userDoc.exists()) {
-                    setShopName(userDoc.data().nameshop || 'Unknown Shop');
+                    const userData = userDoc.data();
+                    setShopName(userData.nameshop || 'Unknown Shop');
+                    setShopPhone(userData.shopPhone || 'No Phone Number');
                 } else {
                     console.log('No such user document!');
                 }
             } catch (error) {
-                console.error('Error fetching shop name:', error);
+                console.error('Error fetching shop data:', error);
             }
         };
 
-        fetchShopName();
+        fetchShopData();
     }, [post.userId]);
 
     const navigateToEditScreen = () => {
@@ -49,10 +52,9 @@ export default function DetailScreenShop({ route }) {
                     text: "ยืนยัน",
                     onPress: async () => {
                         try {
-                            // ลบโพสต์จาก Firebase Firestore
                             await deleteDoc(doc(db, 'blog', post.id));
                             Alert.alert('ลบโพสต์สำเร็จ');
-                            navigation.goBack(); // กลับไปยังหน้าก่อนหน้า
+                            navigation.goBack(); 
                         } catch (error) {
                             console.error('Error deleting post: ', error);
                             Alert.alert('เกิดข้อผิดพลาดในการลบโพสต์');
@@ -67,14 +69,13 @@ export default function DetailScreenShop({ route }) {
         <ScrollView style={styles.container}>
             {/* Shop Image */}
             <Image
-                source={{ uri: post.profileShop }}  // Display the shop's image from the post
+                source={{ uri: post.profileShop }}
                 style={styles.shopImage}
             />
 
             {/* Shop Details */}
             <View style={styles.detailContainer}>
                 <View style={styles.header}>
-                    {/* Display nameshop instead of position */}
                     <Text style={styles.title}>{shopName} {post.gate}</Text>
                     <TouchableOpacity style={styles.editButton} onPress={navigateToEditScreen}>
                         <Text style={styles.editButtonText}>แก้ไขโพสต์</Text>
@@ -84,15 +85,15 @@ export default function DetailScreenShop({ route }) {
                 <View style={styles.infoContainer}>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>📦</Text>
-                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>ตำแหน่งงาน: {post.position}</Text>
+                        <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>ตำแหน่งงาน: {post.position}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💵</Text>
-                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>ค่าจ้าง: {post.perhrs} / ชั่วโมง</Text>
+                        <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>ค่าจ้าง: {post.perhrs} / ชั่วโมง</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Text style={styles.icon}>💼</Text>
-                        <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>รวม: {post.sum} บาท</Text>
+                        <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>รวม: {post.sum} บาท</Text>
                     </View>
                 </View>
             </View>
@@ -101,13 +102,16 @@ export default function DetailScreenShop({ route }) {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>รายละเอียด</Text>
                 <View style={styles.infoRow}>
-                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>จำนวนคน: {post.person} คน</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>จำนวนคน: {post.person} คน</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>เวลาเข้างาน: {post.time} น.</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>เวลาเข้างาน: {post.time} น.</Text>
                 </View>
                 <View style={styles.infoRow}>
-                    <Text style={{fontFamily: 'SUT_Regular',fontSize:18}}>งานที่มอบหมาย: {post.textdetail}</Text>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>งานที่มอบหมาย: {post.textdetail}</Text>
+                </View>
+                <View>
+                    <Text style={{ fontFamily: 'SUT_Regular', fontSize: 18 }}>เบอร์โทรร้านค้า: {shopPhone}</Text>
                 </View>
             </View>
 
@@ -171,7 +175,7 @@ const styles = StyleSheet.create({
     editButtonText: {
         color: '#fff',
         fontFamily: 'SUT_Bold',
-        fontSize:20,
+        fontSize: 20,
     },
     infoContainer: {
         marginTop: 10,

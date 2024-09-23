@@ -1,15 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert, Animated } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { collection, addDoc, doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { auth, db } from '../../firebase';
 
 const DetailScreen = ({ route }) => {
-    const { imgSource, textSource, time, gate, person, nameshop, position, sum, textdetail, latitude, longitude } = route.params;
+    const { imgSource, textSource, time, gate, person, nameshop, position, sum, textdetail, latitude, longitude, postId ,firstname,lastname} = route.params;
 
-    const [showConfirmation, setShowConfirmation] = useState(false); // State to control the confirmation text
-    const [isPendingApproval, setIsPendingApproval] = useState(false); // State to control button status
-    const fadeAnim = useRef(new Animated.Value(0)).current; // Initial opacity for animation
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isPendingApproval, setIsPendingApproval] = useState(false);
+    const [profile, setProfilePic] = useState(null); // State สำหรับเก็บภาพโปรไฟล์ผู้ใช้
+    const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const handleApplyJob = () => {
+    // Check if the user already applied for the post
+    const checkIfAlreadyApplied = async () => {
+        try {
+            const user = auth.currentUser;
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    const appliedPosts = userDoc.data().appliedPosts || [];
+                    if (appliedPosts.includes(postId)) {
+                        setIsPendingApproval(true);
+                    }
+
+                    // ดึงข้อมูลผู้ใช้ที่เกี่ยวข้อง เช่น profile, firstname, lastname
+                    const profilePicture = userDoc.data().profile || null;
+                    setProfilePic(profilePicture); // ตั้งค่ารูปโปรไฟล์ใน state
+                }
+            }
+        } catch (error) {
+            console.error("Error checking applied posts: ", error);
+        }
+    };
+
+    useEffect(() => {
+        checkIfAlreadyApplied();
+    }, []);
+
+    const handleApplyJob = async () => {
         Alert.alert(
             "ยืนยันการสมัคร",
             "คุณต้องการสมัครงานนี้หรือไม่?",
@@ -21,33 +50,68 @@ const DetailScreen = ({ route }) => {
                 },
                 {
                     text: "ยืนยัน",
-                    onPress: () => {
-                        setIsPendingApproval(true); // Set the button to pending status
-                        setShowConfirmation(true);
-                        // Animation to fade in the confirmation text
-                        Animated.timing(fadeAnim, {
-                            toValue: 1,
-                            duration: 500,
-                            useNativeDriver: true
-                        }).start();
-
-                        // Hide the confirmation text after 1.5 seconds
-                        setTimeout(() => {
+                    onPress: async () => {
+                        try {
+                            const user = auth.currentUser;
+                            if (!user) {
+                                Alert.alert('Error', 'User not logged in');
+                                return;
+                            }
+    
+                            // Fetch user data from Firestore
+                            const userDoc = await getDoc(doc(db, 'users', user.uid));
+                            if (!userDoc.exists()) {
+                                Alert.alert('Error', 'User data not found');
+                                return;
+                            }
+    
+                            const userData = userDoc.data();
+    
+                            // Add applicant data to Firestore, use the correct field names from Firestore
+                            await addDoc(collection(db, 'applicant'), {
+                                uid: user.uid,
+                                email: user.email,
+                                firstName: userData.firstName || 'Unknown',  // Correct field name
+                                lastName: userData.lastName || 'Unknown',    // Correct field name
+                                phone: userData.phone || 'Unknown',
+                                profile: userData.profile || '', // User profile picture
+                                status: 'รออนุมัติ',
+                                postId: postId,
+                                nameshop: nameshop, // Shop name
+                            });
+    
+                            // Add postId to the user's appliedPosts array
+                            const userRef = doc(db, 'users', user.uid);
+                            await updateDoc(userRef, {
+                                appliedPosts: arrayUnion(postId)
+                            });
+    
+                            setIsPendingApproval(true); // Set the button status to pending approval
+    
+                            setShowConfirmation(true);
                             Animated.timing(fadeAnim, {
-                                toValue: 0,
+                                toValue: 1,
                                 duration: 500,
                                 useNativeDriver: true
-                            }).start(() => setShowConfirmation(false));
-                        }, 1500);
+                            }).start();
+    
+                            setTimeout(() => {
+                                Animated.timing(fadeAnim, {
+                                    toValue: 0,
+                                    duration: 500,
+                                    useNativeDriver: true
+                                }).start(() => setShowConfirmation(false));
+                            }, 1500);
+                        } catch (error) {
+                            console.error("Error applying for the job: ", error);
+                        }
                     }
                 }
             ]
         );
     };
-
-    const handleCancelJob = () => {
-        setIsPendingApproval(false); // Revert back to 'สมัครงาน'
-    };
+    
+    
 
     return (
         <ScrollView style={styles.container}>
@@ -62,21 +126,15 @@ const DetailScreen = ({ route }) => {
                     <Text style={styles.title}>{nameshop} {gate}</Text>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.applyButton, isPendingApproval && styles.pendingButton]} // Change button style
+                            style={[styles.applyButton, isPendingApproval && styles.pendingButton]}
                             onPress={handleApplyJob}
-                            disabled={isPendingApproval} // Disable the button if pending
+                            disabled={isPendingApproval}
                         >
                             <Text style={styles.applyButtonText}>
-                                {isPendingApproval ? 'รออนุมัติ' : 'สมัครงาน'} {/* Change button text */}
+                                {isPendingApproval ? 'รออนุมัติ' : 'สมัครงาน'}
                             </Text>
                         </TouchableOpacity>
 
-                        {/* ปุ่มยกเลิก (แสดงเมื่อสถานะเป็นรออนุมัติ) */}
-                        {isPendingApproval && (
-                            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelJob}>
-                                <Text style={styles.cancelButtonText}>ยกเลิก</Text>
-                            </TouchableOpacity>
-                        )}
                     </View>
                 </View>
 
@@ -135,6 +193,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    profilePicContainer: {
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    profile: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -190,35 +257,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     buttonContainer: {
-        flexDirection: 'row', // จัดปุ่มให้อยู่ในแนวนอน
-        alignItems: 'center', // จัดให้อยู่ตรงกลางแนวตั้ง
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     applyButton: {
-        backgroundColor: '#F18180', // สีของปุ่มสำหรับสมัครงาน
+        backgroundColor: '#F18180',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
-        marginRight: 10, // เพิ่มระยะห่างระหว่างปุ่มสมัครงานกับปุ่มยกเลิก
+        marginRight: 10,
     },
     pendingButton: {
-        backgroundColor: '#FFA500', // สีส้มสำหรับสถานะรออนุมัติ
+        backgroundColor: '#FFA500',
     },
     applyButtonText: {
         fontFamily: 'SUT_Bold',
         color: '#fff',
         fontSize: 20,
     },
-    cancelButton: {
-        backgroundColor: '#ff5c5c', // สีแดงสำหรับปุ่มยกเลิก
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        borderRadius: 20,
-    },
-    cancelButtonText: {
-        fontFamily: 'SUT_Bold',
-        color: '#fff',
-        fontSize: 18,
-    },
+    
     confirmationBox: {
         backgroundColor: '#D4EDDA',
         padding: 10,
