@@ -77,7 +77,7 @@ export default function WorkScreenShop({ navigation }) {
                         <TouchableOpacity
                             key={post.id}
                             style={styles.postContainer}
-                            onPress={() => navigation.navigate('DetailScreenShop', { post })}
+                            
                         >
                             {/* Image */}
                             <Image
@@ -89,10 +89,9 @@ export default function WorkScreenShop({ navigation }) {
                             <View style={styles.postDetails}>
                                 <Text style={styles.postTitle}>{post.nameshop} {post.gate}</Text>
                                 <View style={styles.postTime}>
-                                    <Ionicons name="storefront-outline" size={16} color="gray" />
-                                    <Text style={styles.postText}>{post.position || 'Unknown Time'} |</Text>
-                                    <Ionicons name="man-outline" size={16} color="gray" />
-                                    <Text style={styles.postText}>รับ {post.person || 0} คน</Text>
+                                    <Ionicons name="menu" size={16} color="gray" />
+                                    <Text style={styles.postText}>{post.position || 'Unknown Time'}</Text>
+                                    <Text style={styles.postText}>| รับ {post.person || 0} คน</Text>
                                 </View>
 
                                 {/* Buttons */}

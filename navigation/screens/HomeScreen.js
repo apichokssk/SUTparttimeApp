@@ -6,12 +6,16 @@ import BtnDay from '../../component/BtnDay';
 import HeaderBar from '../../component/HeaderBar';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { Accelerometer } from 'expo-sensors'; // Import the Accelerometer from expo-sensors
+import { useIsFocused } from '@react-navigation/native'; // Import useIsFocused to track screen focus
 
 export default function HomeScreen({ navigation }) {
     const [posts, setPosts] = useState([]);
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);  // สถานะสำหรับการรีเฟรช
+    const [refreshing, setRefreshing] = useState(false);
+    const [subscription, setSubscription] = useState(null); // State to manage the Accelerometer subscription
+    const isFocused = useIsFocused(); // Hook to detect if the screen is focused
 
     const fetchPosts = async () => {
         try {
@@ -32,6 +36,18 @@ export default function HomeScreen({ navigation }) {
         fetchPosts();
     }, []);
 
+    useEffect(() => {
+        if (isFocused) {
+            // Subscribe to accelerometer when the screen is focused
+            subscribeToShake();
+        } else {
+            // Unsubscribe from accelerometer when the screen is not focused
+            unsubscribeFromShake();
+        }
+        // Cleanup subscription on unmount or when screen loses focus
+        return () => unsubscribeFromShake();
+    }, [isFocused]);
+
     const filterPostsByGate = (gate) => {
         if (gate === 'ทั้งหมด') {
             setFilteredPosts(posts);
@@ -41,11 +57,34 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
-    // ฟังก์ชันการรีเฟรชหน้า
     const onRefresh = async () => {
-        setRefreshing(true);  // แสดงการโหลดขณะรีเฟรช
-        await fetchPosts();  // ดึงข้อมูลใหม่
-        setRefreshing(false);  // หยุดการโหลด
+        setRefreshing(true);
+        await fetchPosts();
+        setRefreshing(false);
+    };
+
+    // Shake detection logic using the Accelerometer
+    const subscribeToShake = () => {
+        setSubscription(
+            Accelerometer.addListener(accelerometerData => {
+                const { x, y, z } = accelerometerData;
+                const acceleration = Math.sqrt(x * x + y * y + z * z);
+                // Detect shake with a threshold value (you can adjust this value based on your testing)
+                if (acceleration > 1.78) {
+                    // If the phone is shaken, navigate to YourWorkScreen.js
+                    navigation.navigate('YourWorkScreen');
+                }
+            })
+        );
+        // Set accelerometer update interval
+        Accelerometer.setUpdateInterval(400);
+    };
+
+    const unsubscribeFromShake = () => {
+        if (subscription) {
+            subscription.remove();
+        }
+        setSubscription(null);
     };
 
     if (loading) {
@@ -71,7 +110,7 @@ export default function HomeScreen({ navigation }) {
 
             <View style={styles.boxContainer}>
                 <FlatList
-                    data={filteredPosts} 
+                    data={filteredPosts}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <Box
@@ -95,10 +134,10 @@ export default function HomeScreen({ navigation }) {
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
-                            onRefresh={onRefresh}  // เรียกใช้ฟังก์ชัน onRefresh เมื่อรีเฟรช
+                            onRefresh={onRefresh}
                         />
                     }
-                    onEndReachedThreshold={0.5} // เลื่อนถึง 50% ของขอบล่างเพื่อรีเฟรช
+                    onEndReachedThreshold={0.5}
                 />
             </View>
         </View>

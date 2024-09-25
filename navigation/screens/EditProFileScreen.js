@@ -175,9 +175,11 @@ const EditProFileScreen = ({ navigation }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
             <TouchableOpacity style={styles.optionButton} onPress={pickImage}>
+            <Ionicons name="image" size={25} color="white" />
               <Text style={styles.optionText}>ภาพในเครื่อง</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.optionButton} onPress={takePhoto}>
+            <Ionicons name="camera" size={25} color="white" />
               <Text style={styles.optionText}>ถ่ายรูป</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
@@ -267,6 +269,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 20,
     marginVertical: 10,
+    flexDirection:'row'
   },
   optionText: {
     color: '#fff',

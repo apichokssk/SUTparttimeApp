@@ -42,8 +42,8 @@ export default function YourWorkScreen({ navigation }) {
 
     const handleCancelPost = async (postId) => {
         Alert.alert(
-            'ยืนยันการลบ', // Confirm deletion
-            `คุณแน่ใจหรือว่าต้องการลบงานนี้?\nDocument ID: ${postId}`,  // Show the doc.id in the alert
+            'ยืนยันการยกเลิกงาน', // Confirm deletion
+            `คุณแน่ใจหรือว่าต้องการยกเลิกงานนี้?`,  // Show the doc.id in the alert
             [
                 {
                     text: 'ยกเลิก',
@@ -109,17 +109,18 @@ export default function YourWorkScreen({ navigation }) {
                             <View style={styles.postDetails}>
                                 <Text style={styles.postTitle}>{post.nameshop} ({post.gate || 'Unknown Gate'})</Text>
                                 <View style={styles.postTime}>
+                                    <Text style={styles.postText}>{post.position || 'Unknown Position'} |</Text>
                                     <Ionicons name="time-outline" size={16} color="gray" />
-                                    <Text style={styles.postText}>{post.time || 'Unknown Time'}</Text>
-                                    <Text style={styles.postText}> | จำนวน {post.person || 0} คน</Text>
+                                    <Text style={styles.postText}>{post.time || 'Unknown Time'} น.</Text>
                                 </View>
-                                <TouchableOpacity
-                                    style={styles.cancelButton}
-                                    onPress={() => handleCancelPost(post.id)}  // Pass the correct document ID (post.id)
-                                >
-                                    <Text style={styles.cancelButtonText}>ยกเลิกงาน</Text>
-                                </TouchableOpacity>
-
+                                <View>
+                                    <TouchableOpacity
+                                        style={styles.cancelButton}
+                                        onPress={() => handleCancelPost(post.id)}  // Pass the correct document ID (post.id)
+                                    >
+                                        <Text style={styles.cancelButtonText}>ยกเลิกงาน</Text>
+                                    </TouchableOpacity>
+                                </View>
 
                             </View>
                         </View>
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 10,
         marginTop: 10,
-        alignItems:'center'
+        alignItems: 'center'
     },
     cancelButtonText: {
         color: '#fff',

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput } fro
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { doc, updateDoc } from 'firebase/firestore';  // Import Firestore functions
 import { auth, db } from '../../firebase';  // Make sure to import Firebase setup
-import { onSnapshot } from 'firebase/firestore'; 
+import { onSnapshot } from 'firebase/firestore';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ProfileScreenShop = () => {
@@ -107,11 +107,14 @@ const ProfileScreenShop = () => {
 
         {/* Profile Details */}
         <View style={styles.profileDetails}>
-          <Text style={styles.userName}>Hi: {profileData.username || 'N/A'}</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <Ionicons name="person" size={25} color="#fff" />
+            <Text style={styles.userName}>: {profileData.username || 'N/A'}</Text>
+          </View>
           <Text style={styles.profilePhone}>ShopName: {profileData.nameshop || 'N/A'}</Text>
           <Text style={styles.profilePhone}>phone: {profileData.shopPhone || 'N/A'}</Text>
           <Text style={styles.profileEmail}>email: {auth.currentUser ? auth.currentUser.email : 'N/A'}</Text>
-          
+
 
           {/* Edit Button */}
           <TouchableOpacity style={styles.editButton} onPress={goToEditProfile}>
@@ -122,6 +125,7 @@ const ProfileScreenShop = () => {
 
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Ionicons name="exit" size={30} color="#fff" />
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </View>
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   profileCard: {
-    backgroundColor: '#ff8a80', 
+    backgroundColor: '#ff8a80',
     borderRadius: 20,
     padding: 20,
     width: '95%',
@@ -213,10 +217,11 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginTop: 50,
-    backgroundColor: '#F44948',  
+    backgroundColor: '#F44948',
     paddingVertical: 15,
     paddingHorizontal: 50,
-    borderRadius: 30,  
+    borderRadius: 30,
+    flexDirection: 'row',
   },
   logoutButtonText: {
     color: '#fff',

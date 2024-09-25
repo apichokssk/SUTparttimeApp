@@ -73,7 +73,7 @@ export default function WorkScreen({ navigation }) {
 
     // Function to remove a post from appliedPosts or cancel the application
     const handleDeletePost = async (postId, status) => {
-        const message = status === 'ผ่าน' ? 'คุณต้องการยกเลิกการสมัครนี้หรือไม่?' : 'คุณแน่ใจหรือว่าต้องการลบโพสต์นี้?';
+        const message = status === 'ผ่าน' ? 'คุณต้องการยกเลิกการสมัครนี้หรือไม่?' : 'คุณแน่ใจหรือว่าต้องการลบงานนี้?';
         Alert.alert(
             status === 'ผ่าน' ? "ยืนยันการยกเลิก" : "ยืนยันการลบ",
             message,
@@ -168,6 +168,7 @@ export default function WorkScreen({ navigation }) {
                             {/* Post Information */}
                             <View style={styles.postDetails}>
                                 <Text style={styles.postTitle}>{post.nameshop} ({post.gate || 'Unknown Gate'})</Text>
+                                <Text style={styles.postText}>ตำแหน่ง: {post.position}</Text>
                                 <View style={styles.postTime}>
                                     <Ionicons name="time-outline" size={16} color="gray" />
                                     <Text style={styles.postText}>{post.time || 'Unknown Time'}</Text>

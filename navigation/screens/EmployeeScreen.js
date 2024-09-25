@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, Touchable
 import { collection, getDocs, deleteDoc, query, where, doc } from 'firebase/firestore';
 import { db } from '../../firebase'; // Adjust the path to your Firebase setup
 import HeaderBarShop from '../../component/HeaderBarShop';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function EmployeeScreen({ route, navigation }) {
     const { postId } = route.params;
@@ -82,15 +83,24 @@ export default function EmployeeScreen({ route, navigation }) {
                             {/* Employee Info */}
                             <View style={styles.employeeInfoContainer}>
                                 <Text style={styles.employeeName}>{employee.firstName} {employee.lastName}</Text>
-                                <Text style={styles.employeeInfo}>อีเมล: {employee.email}</Text>
-                                <Text style={styles.employeeInfo}>เบอร์โทร: {employee.phone}</Text>
+                                <View style={{ flexDirection: 'row' }}>
+                                <Ionicons name="at-circle" size={16} color="gray" />
+                                    <Text style={styles.employeeInfo}> {employee.email}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row' }}>
+                                <Ionicons name="call" size={16} color="gray" />
+                                    <Text style={styles.employeeInfo}> {employee.phone}</Text>
+                                </View>
 
                                 {/* Delete Employee Button */}
                                 <TouchableOpacity
                                     style={styles.deleteButton}
                                     onPress={() => handleDeleteEmployee(employee.id)}
                                 >
-                                    <Text style={styles.deleteButtonText}>ยกเลิกจ้างงาน</Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Ionicons name="person-remove-outline" size={20} color="white" />
+                                        <Text style={styles.deleteButtonText}> ยกเลิกจ้างงาน</Text>
+                                    </View>
                                 </TouchableOpacity>
                             </View>
                         </View>

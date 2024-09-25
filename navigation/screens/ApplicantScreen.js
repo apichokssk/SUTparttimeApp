@@ -3,6 +3,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Image, Touchable
 import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc, getDoc, arrayRemove, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase'; // Adjust the path to your Firebase setup
 import HeaderBarShop from '../../component/HeaderBarShop';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ApplicantScreen({ route, navigation }) {
     const { postId } = route.params;
@@ -72,8 +73,8 @@ export default function ApplicantScreen({ route, navigation }) {
             }
 
             Alert.alert(
-                "สถานะอัปเดตแล้ว",
-                `ผู้สมัคร ${applicantData.firstName} ${applicantData.lastName} ถูกตั้งสถานะเป็น ${decision === 'approve' ? 'ผ่าน' : 'ไม่ผ่าน'}.`
+                "อนุมัติแล้ว",
+                `ผู้สมัคร ${applicantData.firstName} ${applicantData.lastName} สถานะ ${decision === 'approve' ? 'ผ่าน' : 'ไม่ผ่าน'}.`
             );
 
             fetchApplicants(); // Refresh the data after action
@@ -111,9 +112,14 @@ export default function ApplicantScreen({ route, navigation }) {
                             {/* Applicant Info */}
                             <View style={styles.applicantInfoContainer}>
                                 <Text style={styles.applicantName}>{applicant.firstName} {applicant.lastName}</Text>
-                                <Text style={styles.applicantInfo}>อีเมล: {applicant.email}</Text>
-                                <Text style={styles.applicantInfo}>เบอร์โทร: {applicant.phone}</Text>
-
+                                <View style={{ flexDirection: 'row' }}>
+                                    <Ionicons name="at-circle" size={20} color="gray" />
+                                    <Text style={styles.applicantInfo}> {applicant.email}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row' }}>
+                                <Ionicons name="call" size={16} color="gray" />
+                                    <Text style={styles.applicantInfo}> {applicant.phone}</Text>
+                                </View>
                                 {/* Approve/Reject Buttons */}
                                 <TouchableOpacity
                                     style={[styles.approveButton, applicant.status === 'ผ่าน' && styles.passedButton]}

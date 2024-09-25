@@ -7,7 +7,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Screens
 import HomeScreen from './HomeScreen';
 import WorkScreen from './WorkScreen';
-import MessageScreen from './MessageScreen';
 import ProfileScreen from './ProfileScreen';
 import EditProFileScreen from './EditProFileScreen';
 import DetailScreen from './DetailScreen';
@@ -15,7 +14,7 @@ import DetailScreen from './DetailScreen';
 // Screen names
 const homeName = 'Home';
 const workName = 'Work';
-const messageName = 'Message';
+
 
 
 const Tab = createBottomTabNavigator();
@@ -29,9 +28,9 @@ function HomeStack() {
                 name="HomeScreen"
                 component={HomeScreen}
                 options={{ headerShown: false }} />
-            <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-            <Stack.Screen name="EditProFileScreen" component={EditProFileScreen} />
-            <Stack.Screen name="DetailScreen" component={DetailScreen} />
+            <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="EditProFileScreen" component={EditProFileScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="DetailScreen" component={DetailScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }

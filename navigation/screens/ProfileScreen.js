@@ -84,7 +84,10 @@ const ProfileScreen = () => {
 
         {/* Profile Details */}
         <View style={styles.profileDetails}>
-          <Text style={styles.userName}>Hi : {profileData.username || 'N/A'}</Text>
+          <View style={{flexDirection:'row'}}>
+            <Ionicons name="person" size={25} color="#fff" />
+            <Text style={styles.userName}>: {profileData.username || 'N/A'}</Text>
+          </View>
           <Text style={styles.profileName}>firstname: {profileData.firstName || 'N/A'}</Text>
           <Text style={styles.profileLastName}>lastname: {profileData.lastName || 'N/A'}</Text>
           <Text style={styles.profilePhone}>phone: {profileData.phone || 'N/A'}</Text>
@@ -111,6 +114,7 @@ const ProfileScreen = () => {
 
       {/* Logout Button */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Ionicons name="exit" size={30} color="#fff" />
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </View>
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   profileCard: {
-    backgroundColor: '#ff8a80', 
+    backgroundColor: '#ff8a80',
     borderRadius: 20,
     padding: 20,
     width: '95%',
@@ -152,7 +156,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'SUT_Regular',
   },
-  userName:{
+  userName: {
     fontSize: 25,
     fontFamily: 'SUT_Bold',
     color: '#fff',
@@ -206,7 +210,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontFamily: 'SUT_Bold',
     textAlign: 'center',
-    color:'#0005'
+    color: '#0005'
   },
   horizontalLine: {
     height: 1,
@@ -220,6 +224,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 50,
     borderRadius: 30,  // Rounded corners for the button
+    flexDirection: 'row',
   },
   logoutButtonText: {
     color: '#fff',
